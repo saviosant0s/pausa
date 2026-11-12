@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pausa</title>
+<meta name="theme-color" content="#0f1115">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pausa">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234ade80'/><rect x='32' y='26' width='12' height='48' rx='4' fill='%2306210f'/><rect x='56' y='26' width='12' height='48' rx='4' fill='%2306210f'/></svg>">
+<link rel="manifest" href="data:application/manifest+json,{&quot;name&quot;:&quot;Pausa&quot;,&quot;short_name&quot;:&quot;Pausa&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%230f1115&quot;,&quot;theme_color&quot;:&quot;%230f1115&quot;}">
+<style>
+:root{--bg:#0f1115;--card:#181b22;--txt:#e9ecf1;--mut:#8a93a3;--ac:#4ade80;--warn:#f59e0b;--bd:#262a33}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt)}
+.wrap{max-width:460px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:20px;margin:0 0 4px}.mut{color:var(--mut);font-size:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-top:14px}
+.big{font-size:40px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.bar{height:8px;background:var(--bd);border-radius:6px;overflow:hidden;margin-top:10px}.bar>div{height:100%;background:var(--ac);transition:width .5s}
+button{font:inherit;border:0;border-radius:10px;padding:12px 14px;cursor:pointer;background:var(--bd);color:var(--txt)}
+.main{width:100%;background:var(--ac);color:#06210f;font-weight:700;font-size:18px;padding:16px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}
+input{font:inherit;width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:#0c0e12;color:var(--txt)}
+ul{list-style:none;padding:0;margin:8px 0 0}li{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:14px}
+li button{padding:4px 10px;font-size:13px}.hide{display:none}
+.sug{font-size:20px;font-weight:600;margin:10px 0}.tabs{display:flex;gap:6px;margin-top:14px}.tabs button{flex:1;font-size:14px}.tabs .on{background:var(--ac);color:#06210f}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pausa</h1>
+  <div class="mut">Abra aqui antes de abrir a rede social.</div>
+
+  <div class="card">
+    <div class="mut">Falta pra ir embora</div>
+    <div class="big" id="falta">--:--</div>
+    <div class="bar"><div id="prog" style="width:0"></div></div>
+    <div class="mut" style="margin-top:8px">Expediente: <span id="hrs"></span> · <a href="#" id="editH" style="color:var(--mut)">alterar</a></div>
+    <div id="hBox" class="hide" style="margin-top:10px">
+      <div class="row"><input type="time" id="hIni"><input type="time" id="hFim"></div>
+      <button style="margin-top:8px;width:100%" id="hSalvar">Salvar</button>
+    </div>
+  </div>
+
+  <div class="card" id="inicio">
+    <button class="main" id="vontade">Bateu vontade de rolar o feed</button>
+    <div class="mut" style="margin-top:8px">Hoje: <b id="hoje">0</b> vontades · <b id="venc">0</b> sem abrir</div>
+  </div>
+
+  <div class="card hide" id="pausa">
+    <div class="mut">Faz isso por 2 minutos:</div>
+    <div class="sug" id="sug"></div>
+    <div id="det" style="background:#0c0e12;border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:10px;line-height:1.45" class="hide"></div>
+    <button id="trad" class="hide" style="width:100%;margin-bottom:10px">Ver tradução</button>
+    <div class="big" id="timer">2:00</div>
+    <div class="row" style="margin-top:12px">
+      <button id="outra">Outra sugestão</button>
+    </div>
+    <div id="fim" class="hide" style="margin-top:12px">
+      <div class="mut" style="margin-bottom:8px">E agora?</div>
+      <div class="row">
+        <button id="ok" style="background:var(--ac);color:#06210f;font-weight:700">Passou, voltei</button>
+        <button id="abri">Vou abrir mesmo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="on" data-t="mandar">Mandar depois</button>
+    <button data-t="alt">Minhas alternativas</button>
+    <button data-t="hist">Histórico</button>
+  </div>
+
+  <div class="card" id="t-mandar">
+    <div class="mut">Lembrou de alguém ou de algo pra mandar? Anota e manda no almoço ou depois do expediente.</div>
+    <div class="row" style="margin-top:10px"><input id="mIn" placeholder="Ex.: mandar aquele vídeo pro João"><button id="mAdd">+</button></div>
+    <ul id="mList"></ul>
+  </div>
+
+  <div class="card hide" id="t-alt">
+    <div class="mut">Coisas curtas pra fazer no lugar do feed.</div>
+    <div class="row" style="margin-top:10px"><input id="aIn" placeholder="Nova alternativa"><button id="aAdd">+</button></div>
+    <ul id="aList"></ul>
+  </div>
+
+  <div class="card hide" id="t-hist">
+    <div class="mut">Em que horários a vontade mais aparece.</div>
+    <ul id="hList"></ul>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const mem={};
+function load(k,d){try{const v=localStorage.getItem('pausa_'+k);return v?JSON.parse(v):d}catch(e){return k in mem?mem[k]:d}}
+function save(k,v){mem[k]=v;try{localStorage.setItem('pausa_'+k,JSON.stringify(v))}catch(e){}}
+
+let cfg=load('cfg',{ini:'08:00',fim:'18:00'});
+let alts=load('alts',['Ler e traduzir uma frase em inglês','Rabiscar uma ideia de cartaz','Levantar, pegar água e alongar','Adiantar uma tarefa pequena do trabalho','Organizar a mesa ou a área de trabalho do PC','Aprender um atalho de teclado novo','Anotar uma ideia pra um projeto pessoal']);
+let mandar=load('mandar',[]);
+let log=load('log',[]);
+
+const toMin=s=>{const[a,b]=s.split(':').map(Number);return a*60+b};
+function relogio(){
+  const n=new Date(),agora=n.getHours()*60+n.getMinutes()+n.getSeconds()/60;
+  const i=toMin(cfg.ini),f=toMin(cfg.fim);
+  $('hrs').textContent=cfg.ini+' – '+cfg.fim;
+  if(agora>=f){$('falta').textContent='Pode ir! 🎉';$('prog').style.width='100%';return}
+  const r=Math.ceil((f-agora)*60),h=Math.floor(r/3600),m=Math.floor(r%3600/60),s=r%60;
+  $('falta').textContent=(h?h+'h ':'')+String(m).padStart(2,'0')+'m '+String(s).padStart(2,'0')+'s';
+  $('prog').style.width=Math.max(0,Math.min(100,(agora-i)/(f-i)*100))+'%';
+}
+setInterval(relogio,1000);relogio();
+$('editH').onclick=e=>{e.preventDefault();$('hIni').value=cfg.ini;$('hFim').value=cfg.fim;$('hBox').classList.toggle('hide')};
+$('hSalvar').onclick=()=>{cfg={ini:$('hIni').value||cfg.ini,fim:$('hFim').value||cfg.fim};save('cfg',cfg);$('hBox').classList.add('hide');relogio()};
+
+const hojeStr=()=>new Date().toDateString();
+function contadores(){const h=log.filter(x=>new Date(x.t).toDateString()===hojeStr());$('hoje').textContent=h.length;$('venc').textContent=h.filter(x=>x.r==='ok').length}
+
+let tm=null,rest=120,ult=-1;
+const R=a=>a[Math.floor(Math.random()*a.length)];
+const POOL={
+ atalho:[
+  ['Win + V','Abre o histórico da área de transferência. Copia duas coisas diferentes com Ctrl+C e depois aperta Win+V pra escolher qual colar. (Na 1ª vez ele pede pra ativar.)'],
+  ['Win + Shift + S','Print só de uma parte da tela. Seleciona uma área e cola num chat com Ctrl+V.'],
+  ['Ctrl + Shift + T','Reabre a última aba fechada no navegador. Fecha uma aba e testa.'],
+  ['Win + .','Abre o painel de emojis e símbolos em qualquer campo de texto.'],
+  ['Ctrl + Backspace','Apaga a palavra inteira em vez de letra por letra. Testa num campo de texto.'],
+  ['Win + D','Mostra a área de trabalho na hora. Aperta de novo pra voltar.'],
+  ['Ctrl + L','Seleciona a barra de endereço do navegador direto, sem usar o mouse.'],
+  ['Win + ← / →','Encaixa a janela na metade da tela. Ótimo pra deixar sistema e atendimento lado a lado.'],
+  ['Ctrl + Shift + V','Cola sem formatação (no navegador e em vários apps). Copia um texto colorido e testa.'],
+  ['F2','Renomeia o arquivo selecionado no Explorador.'],
+  ['Ctrl + Shift + Esc','Abre o Gerenciador de Tarefas direto.'],
+  ['Win + E','Abre o Explorador de Arquivos.'],
+  ['Ctrl + F','Procura uma palavra na página. Usa no sistema pra achar um cliente ou campo rápido.'],
+  ['Alt + Tab (segurando Alt)','Fica segurando Alt e aperta Tab várias vezes pra escolher a janela.'],
+  ['Win + L','Bloqueia o PC na hora, bom pra quando levantar da mesa.']],
+ ingles:[
+  ['I\'ll get back to you as soon as possible.','Eu te retorno o mais rápido possível.'],
+  ['Could you send me a screenshot of the error?','Você poderia me mandar um print do erro?'],
+  ['It turned out to be easier than I expected.','Acabou sendo mais fácil do que eu esperava.'],
+  ['I\'m looking forward to the weekend.','Estou ansioso pelo fim de semana.'],
+  ['Let me double-check that before I answer.','Deixa eu conferir isso de novo antes de responder.'],
+  ['The issue has been fixed in the latest update.','O problema foi corrigido na última atualização.'],
+  ['I ran out of time, so I\'ll finish it tomorrow.','Fiquei sem tempo, então termino amanhã.'],
+  ['Whatever you decide, I\'ve got your back.','O que você decidir, estou contigo.'],
+  ['It\'s not worth the hassle.','Não vale a dor de cabeça.'],
+  ['I\'ve been meaning to ask you something.','Faz tempo que quero te perguntar uma coisa.']],
+ cartaz:['Tema: "Luz no caminho". Esboça só a composição: onde vai o título, a imagem e as informações.','Testa uma paleta com 3 cores só (uma escura, uma clara e um destaque) pra um culto de jovens.','Faz 3 versões rápidas de título pra "Noite de Louvor" com fontes diferentes, só no papel.','Pensa num cartaz só com tipografia, sem foto. Como ficaria?','Rabisca um layout vertical de story (9:16) pra um aviso de culto.'],
+ alongar:['Levanta, pega água e gira os ombros pra trás 10 vezes.','Em pé, entrelaça os dedos, estica os braços pra cima e segura 20 segundos.','Inclina a cabeça pro lado, segura 15 segundos de cada lado.','Dá uma volta até a janela ou o bebedouro e olha pra longe por 20 segundos (descansa a vista).'],
+ tarefa:['Abre a fila de atendimentos e responde o mais simples que estiver parado.','Escolhe uma pendência de 2 minutos e resolve agora.','Revisa uma mensagem ou template que você mandou hoje e vê se tem algo pra melhorar.','Anota as 3 coisas que ainda faltam fazer hoje, em ordem.'],
+ organizar:['Fecha as abas do navegador que você não vai usar mais.','Apaga 10 prints velhos da pasta de Downloads ou da área de trabalho.','Arruma os itens da mesa e joga fora o que for lixo.'],
+ ideia:['Anota uma melhoria pro Castelei ou outro projeto seu, em uma frase.','Pensa num app pequeno que resolveria um problema do seu dia e anota o nome dele.','Escreve uma ideia de conteúdo pra página de memes.']
+};
+function tipo(t){t=t.toLowerCase();if(t.includes('atalho'))return'atalho';if(t.includes('ingl'))return'ingles';if(t.includes('cartaz'))return'cartaz';if(t.includes('along')||t.includes('água'))return'alongar';if(t.includes('tarefa'))return'tarefa';if(t.includes('organiz'))return'organizar';if(t.includes('ideia'))return'ideia';return null}
+function detalhar(t){
+  const d=$('det'),tb=$('trad');d.classList.add('hide');tb.classList.add('hide');d.innerHTML='';
+  const k=tipo(t);if(!k)return;d.classList.remove('hide');
+  if(k==='atalho'){const[a,b]=R(POOL.atalho);d.innerHTML='<div style="font-size:22px;font-weight:700;margin-bottom:6px"></div><div></div>';d.children[0].textContent=a;d.children[1].textContent=b+' Testa agora.'}
+  else if(k==='ingles'){const[a,b]=R(POOL.ingles);d.innerHTML='<div style="font-size:18px;font-weight:600"></div><div class="mut" style="margin-top:6px">Tenta traduzir de cabeça antes de ver.</div>';d.children[0].textContent=a;tb.classList.remove('hide');tb.onclick=()=>{d.children[1].textContent=b;d.children[1].style.color='var(--ac)';tb.classList.add('hide')}}
+  else d.textContent=R(POOL[k]);
+}
+function sugerir(){if(!alts.length){$('sug').textContent='Cadastre alternativas abaixo';return}let k;do{k=Math.floor(Math.random()*alts.length)}while(alts.length>1&&k===ult);ult=k;$('sug').textContent=alts[k];detalhar(alts[k])}
+$('vontade').onclick=()=>{
+  $('inicio').classList.add('hide');$('pausa').classList.remove('hide');$('fim').classList.add('hide');
+  sugerir();rest=120;$('timer').textContent='2:00';clearInterval(tm);
+  tm=setInterval(()=>{rest--;$('timer').textContent=Math.floor(rest/60)+':'+String(rest%60).padStart(2,'0');if(rest<=0){clearInterval(tm);$('timer').textContent='0:00';$('fim').classList.remove('hide')}},1000);
+  setTimeout(()=>$('fim').classList.remove('hide'),30000);
+};
+$('outra').onclick=sugerir;
+function fechar(r){clearInterval(tm);log.unshift({t:Date.now(),r,s:$('sug').textContent});log=log.slice(0,300);save('log',log);$('pausa').classList.add('hide');$('inicio').classList.remove('hide');contadores();renderHist()}
+$('ok').onclick=()=>fechar('ok');$('abri').onclick=()=>fechar('abri');
+
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');['mandar','alt','hist'].forEach(t=>$('t-'+t).classList.toggle('hide',t!==b.dataset.t))});
+
+function lista(el,arr,key,rerender){el.innerHTML='';arr.forEach((x,i)=>{const li=document.createElement('li');const sp=document.createElement('span');sp.textContent=x;const b=document.createElement('button');b.textContent=key==='mandar'?'Feito':'×';b.onclick=()=>{arr.splice(i,1);save(key,arr);rerender()};li.append(sp,b);el.append(li)})}
+function renderM(){lista($('mList'),mandar,'mandar',renderM)}
+function renderA(){lista($('aList'),alts,'alts',renderA)}
+$('mAdd').onclick=()=>{const v=$('mIn').value.trim();if(v){mandar.push(v);save('mandar',mandar);$('mIn').value='';renderM()}};
+$('aAdd').onclick=()=>{const v=$('aIn').value.trim();if(v){alts.push(v);save('alts',alts);$('aIn').value='';renderA()}};
+$('mIn').onkeydown=e=>{if(e.key==='Enter')$('mAdd').click()};$('aIn').onkeydown=e=>{if(e.key==='Enter')$('aAdd').click()};
+
+function renderHist(){
+  const el=$('hList');el.innerHTML='';
+  if(!log.length){el.innerHTML='<li class="mut">Nada ainda.</li>';return}
+  const por={};log.forEach(x=>{const h=new Date(x.t).getHours();por[h]=(por[h]||0)+1});
+  const top=Object.entries(por).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([h,c])=>h+'h ('+c+')').join(' · ');
+  const li0=document.createElement('li');li0.innerHTML='<b>Horários com mais vontade:</b> <span></span>';li0.querySelector('span').textContent=top;el.append(li0);
+  log.slice(0,30).forEach(x=>{const d=new Date(x.t);const li=document.createElement('li');const a=document.createElement('span');a.textContent=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});const b=document.createElement('span');b.textContent=x.r==='ok'?'✅ não abriu':'📱 abriu';b.style.color=x.r==='ok'?'var(--ac)':'var(--warn)';li.append(a,b);el.append(li)});
+}
+renderM();renderA();renderHist();contadores();
+</script>
+</body>
+</html>
