@@ -4,121 +4,514 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pausa</title>
-<meta name="theme-color" content="#0f1115">
+<meta name="theme-color" content="#f9f6f2">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Pausa">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234ade80'/><rect x='32' y='26' width='12' height='48' rx='4' fill='%2306210f'/><rect x='56' y='26' width='12' height='48' rx='4' fill='%2306210f'/></svg>">
-<link rel="manifest" href="data:application/manifest+json,{&quot;name&quot;:&quot;Pausa&quot;,&quot;short_name&quot;:&quot;Pausa&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%230f1115&quot;,&quot;theme_color&quot;:&quot;%230f1115&quot;}">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2328696c'/><rect x='32' y='26' width='12' height='48' rx='4' fill='%23f9f6f2'/><rect x='56' y='26' width='12' height='48' rx='4' fill='%23f9f6f2'/></svg>">
+<link rel="manifest" href="data:application/manifest+json,{&quot;name&quot;:&quot;Pausa&quot;,&quot;short_name&quot;:&quot;Pausa&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%23f9f6f2&quot;,&quot;theme_color&quot;:&quot;%2328696c&quot;}">
 <style>
-:root{--bg:#0f1115;--card:#181b22;--txt:#e9ecf1;--mut:#8a93a3;--ac:#4ade80;--warn:#f59e0b;--bd:#262a33}
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt)}
-.wrap{max-width:460px;margin:0 auto;padding:20px 16px 60px}
-h1{font-size:20px;margin:0 0 4px}.mut{color:var(--mut);font-size:14px}
+/* Paleta baseada em evidência: saturação baixa, tema claro de dia,
+   escuro e fraco à noite, humor pela claridade, vermelho só em "Ajuda agora". */
+:root{
+  --bg:#f9f6f2;--card:#fefdfb;--bd:#e1ddd7;--bd-ui:#8b857d;--txt:#1e2228;--mut:#595e66;
+  --ac:#28696c;--on-ac:#ffffff;--ok:#48764a;--warn:#97661e;--help:#94221f;--on-help:#ffffff;
+  --input:var(--card);
+  --m1:#434073;--m2:#2c5b80;--m3:#257470;--m4:#6f7d42;--m5:#a97e2c;--on-m:#ffffff;
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#100e0c;--card:#1a1713;--bd:#312d28;--bd-ui:#6b655f;--txt:#ddd7cc;--mut:#a49d94;
+  --ac:#82b6b5;--on-ac:#100e0c;--ok:#a8c9a1;--warn:#dbb879;--help:#d47d72;--on-help:#100e0c;
+  --input:var(--bg);
+  --m1:#7b7aac;--m2:#719abe;--m3:#79b8b4;--m4:#bac992;--m5:#f7d293;--on-m:#100e0c;
+  color-scheme:dark;
+}
+:root[data-theme="dark"][data-late]{--txt:#c5bcb0}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);font-size:17px;line-height:1.5}
+.wrap{max-width:480px;margin:0 auto;padding:16px 16px 72px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{font-size:22px;margin:0;line-height:1.2}
+h2{font-size:18px;margin:0 0 4px;line-height:1.3}
+p{margin:6px 0}
+.mut{color:var(--mut);font-size:15px}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-top:14px}
+button,.btn{font:inherit;border:1px solid var(--bd-ui);border-radius:10px;padding:11px 14px;cursor:pointer;background:var(--card);color:var(--txt);min-height:44px}
+.btn{display:block;text-decoration:none;text-align:center;margin-top:8px}
+.main{width:100%;background:var(--ac);border-color:var(--ac);color:var(--on-ac);font-weight:700;font-size:18px;padding:15px}
+.full{width:100%;margin-top:8px}
+.help{background:var(--help);border-color:var(--help);color:var(--on-help);font-weight:700}
+.link{background:none;border:0;padding:6px 0;color:var(--mut);text-decoration:underline;min-height:0;font-size:15px}
+input,textarea{font:inherit;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--bd-ui);background:var(--input);color:var(--txt)}
+textarea{resize:vertical;min-height:84px}
+input[type=range]{padding:0;border:0;background:none;accent-color:var(--ac);height:36px}
+label{display:block;font-size:15px;color:var(--mut);margin:10px 0 4px}
+.nav{display:flex;gap:6px;margin-top:14px}.nav button{flex:1;font-size:15px;padding:10px 6px}
+.nav .on{background:var(--ac);border-color:var(--ac);color:var(--on-ac);font-weight:700}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
+.hide{display:none!important}
+ul{list-style:none;padding:0;margin:8px 0 0}
+li{padding:8px 0;border-bottom:1px solid var(--bd);font-size:15px}
+.lst li{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.lst li button{padding:4px 10px;font-size:14px;min-height:36px}
 .big{font-size:40px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.center{text-align:center}
 .bar{height:8px;background:var(--bd);border-radius:6px;overflow:hidden;margin-top:10px}.bar>div{height:100%;background:var(--ac);transition:width .5s}
-button{font:inherit;border:0;border-radius:10px;padding:12px 14px;cursor:pointer;background:var(--bd);color:var(--txt)}
-.main{width:100%;background:var(--ac);color:#06210f;font-weight:700;font-size:18px;padding:16px}
-.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}
-input{font:inherit;width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:#0c0e12;color:var(--txt)}
-ul{list-style:none;padding:0;margin:8px 0 0}li{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:14px}
-li button{padding:4px 10px;font-size:13px}.hide{display:none}
-.sug{font-size:20px;font-weight:600;margin:10px 0}.tabs{display:flex;gap:6px;margin-top:14px}.tabs button{flex:1;font-size:14px}.tabs .on{background:var(--ac);color:#06210f}
+.sug{font-size:20px;font-weight:600;margin:10px 0}
+.box{background:var(--input);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:10px;line-height:1.45}
+
+/* humor */
+.moods{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+.moods button{padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:4px;border:2px solid var(--bd)}
+.moods button[aria-pressed=true]{border-color:var(--txt)}
+.sw{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;color:var(--on-m);font-weight:700;font-size:20px}
+.moods small{font-size:13px;line-height:1.2;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chips button{padding:7px 12px;min-height:40px;font-size:15px;border-radius:20px}
+.chips button[aria-pressed=true]{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
+
+/* tela cheia (momento forte / ajuda) */
+.over{position:fixed;inset:0;background:var(--bg);overflow-y:auto;z-index:10}
+#ajuda{z-index:20}
+.carta{border-left:4px solid var(--ac);padding:6px 12px;white-space:pre-wrap;font-size:18px;margin:8px 0}
+.circ{width:170px;height:170px;border-radius:50%;margin:24px auto 12px;background:var(--ac);opacity:.8;transform:scale(.6)}
+@media (prefers-reduced-motion:reduce){.circ{transition:none!important;transform:scale(.8)!important}}
+.regra{border:1px solid var(--bd-ui);border-radius:12px;padding:12px;margin-top:12px}
+
+/* 15 dias */
+.dias{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+.dia{border:1px solid var(--bd);border-radius:10px;padding:4px 2px;text-align:center;font-size:13px;color:var(--mut)}
+.dia b{display:flex;align-items:center;justify-content:center;height:30px;margin:2px 6px;border-radius:8px;font-size:17px;color:var(--txt)}
+.dia.fut{opacity:.45}.dia.hj{border-color:var(--txt)}
+.ok{color:var(--ok);font-weight:700}
+.aviso{color:var(--warn);font-weight:600}
+details summary{cursor:pointer;color:var(--mut);padding:6px 0}
+
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--txt);color:var(--bg);padding:8px 16px;border-radius:20px;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
+#toast.on{opacity:1}
 </style>
+<script>
+/* Tema pelo horário: noite das 21h às 6h; texto mais fraco das 23h às 6h. Sem tela de configuração. */
+function tema(){var h=new Date().getHours(),r=document.documentElement;r.dataset.theme=(h>=21||h<6)?'dark':'light';if(h>=23||h<6)r.dataset.late='1';else delete r.dataset.late;var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',getComputedStyle(r).getPropertyValue('--bg').trim())}
+tema();
+</script>
 </head>
 <body>
 <div class="wrap">
-  <h1>Pausa</h1>
-  <div class="mut">Abra aqui antes de abrir a rede social.</div>
-
-  <div class="card">
-    <div class="mut">Falta pra ir embora</div>
-    <div class="big" id="falta">--:--</div>
-    <div class="bar"><div id="prog" style="width:0"></div></div>
-    <div class="mut" style="margin-top:8px">Expediente: <span id="hrs"></span> · <a href="#" id="editH" style="color:var(--mut)">alterar</a></div>
-    <div id="hBox" class="hide" style="margin-top:10px">
-      <div class="row"><input type="time" id="hIni"><input type="time" id="hFim"></div>
-      <button style="margin-top:8px;width:100%" id="hSalvar">Salvar</button>
-    </div>
+  <div class="top">
+    <div><h1>Pausa</h1><div class="mut" id="data"></div></div>
+    <button class="help" data-help>Ajuda agora</button>
   </div>
 
-  <div class="card" id="inicio">
-    <button class="main" id="vontade">Bateu vontade de rolar o feed</button>
-    <div class="mut" style="margin-top:8px">Hoje: <b id="hoje">0</b> vontades · <b id="venc">0</b> sem abrir</div>
-  </div>
+  <nav class="nav">
+    <button class="on" data-s="hoje">Hoje</button>
+    <button data-s="comb">Combinados</button>
+    <button data-s="ciclo">15 dias</button>
+  </nav>
 
-  <div class="card hide" id="pausa">
-    <div class="mut">Faz isso por 2 minutos:</div>
-    <div class="sug" id="sug"></div>
-    <div id="det" style="background:#0c0e12;border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:10px;line-height:1.45" class="hide"></div>
-    <button id="trad" class="hide" style="width:100%;margin-bottom:10px">Ver tradução</button>
-    <div class="big" id="timer">2:00</div>
-    <div class="row" style="margin-top:12px">
-      <button id="outra">Outra sugestão</button>
+  <!-- ================= HOJE ================= -->
+  <section id="s-hoje">
+    <div class="card hide" id="noite">
+      <h2>Já passou das 22h</h2>
+      <p class="mut">Celular no carregador, longe da cama. Se tem coisa martelando pra amanhã, tira da cabeça aqui e fecha o app.</p>
+      <textarea id="nTxt" maxlength="280" placeholder="O que precisa fazer amanhã (até 3 linhas)"></textarea>
     </div>
-    <div id="fim" class="hide" style="margin-top:12px">
-      <div class="mut" style="margin-bottom:8px">E agora?</div>
-      <div class="row">
-        <button id="ok" style="background:var(--ac);color:#06210f;font-weight:700">Passou, voltei</button>
-        <button id="abri">Vou abrir mesmo</button>
+
+    <div class="card so-dia" id="cHumor">
+      <h2>Como você está agora?</h2>
+      <div class="moods" id="moods"></div>
+      <div id="palBox" class="hide">
+        <div class="mut" style="margin-top:10px">Uma palavra pra isso:</div>
+        <div class="chips" id="pal"></div>
+      </div>
+      <div class="mut" id="hSt" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card" id="cAcao">
+      <h2>Ação de hoje</h2>
+      <div id="aNota" class="mut hide"></div>
+      <div id="aSet">
+        <p class="mut">Uma só, pequena, presa a um momento do dia. Faz antes de ter vontade: na ativação comportamental, a ação vem antes da vontade.</p>
+        <div class="row"><input id="aIn" maxlength="120" placeholder="Depois do almoço, eu caminho 10 min"><button id="aDef" style="flex:0 0 auto">Definir</button></div>
+      </div>
+      <div id="aShow" class="hide">
+        <div class="sug" id="aTxt"></div>
+        <div class="row">
+          <button id="aDone" class="main">Feito</button>
+        </div>
+        <button class="link" id="aTroca">trocar a ação</button>
+        <div id="aComp" class="hide">
+          <p class="mut">Comparado com o que você esperava, foi:</p>
+          <div class="row"><button data-v="melhor">Melhor</button><button data-v="igual">Igual</button><button data-v="pior">Pior</button></div>
+        </div>
+        <div id="aOk" class="ok hide"></div>
+      </div>
+      <div id="aTomBox" class="hide" style="margin-top:14px;border-top:1px solid var(--bd);padding-top:12px">
+        <div class="mut">Ação de amanhã (escolhe hoje, faz amanhã):</div>
+        <div class="row" style="margin-top:6px"><input id="aTomIn" maxlength="120" placeholder="Depois do café, eu..."><button id="aTomSalvar" style="flex:0 0 auto">Salvar</button></div>
+        <div class="mut" id="aTomSt" style="margin-top:6px"></div>
+      </div>
+    </div>
+
+    <div class="card" id="inicio">
+      <button class="main" id="bEmo">Bateu raiva / tô me perdendo</button>
+      <button class="full" id="vontade">Bateu vontade de rolar o feed</button>
+      <button class="link" id="bPerfil">É o perfil dela ou conversa antiga →</button>
+      <div class="mut">Hoje: <b id="hoje">0</b> vontades · <b id="venc">0</b> sem abrir · <b id="emoHoje">0</b> momentos fortes</div>
+    </div>
+
+    <div class="card hide" id="pausa">
+      <div class="mut">Faz isso por 2 minutos:</div>
+      <div class="sug" id="sug"></div>
+      <div id="det" class="box hide"></div>
+      <button id="trad" class="hide full" style="margin:0 0 10px">Ver tradução</button>
+      <div class="big center" id="timer">2:00</div>
+      <button id="outra" class="full">Outra sugestão</button>
+      <div id="fim" class="hide" style="margin-top:12px">
+        <div class="mut" style="margin-bottom:8px">E agora?</div>
+        <div class="row">
+          <button id="ok" class="main" style="font-size:17px">Passou, voltei</button>
+          <button id="abri">Vou abrir mesmo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card so-dia">
+      <div class="mut">Falta pra ir embora</div>
+      <div class="big" id="falta">--:--</div>
+      <div class="bar"><div id="prog" style="width:0"></div></div>
+      <div class="mut" style="margin-top:8px">Expediente: <span id="hrs"></span> · <button class="link" id="editH">alterar</button></div>
+      <div id="hBox" class="hide" style="margin-top:10px">
+        <div class="row"><input type="time" id="hIni"><input type="time" id="hFim"></div>
+        <button class="full" id="hSalvar">Salvar</button>
+      </div>
+    </div>
+
+    <div class="card so-dia">
+      <h2>Mandar depois</h2>
+      <div class="mut">Lembrou de alguém ou de algo pra mandar? Anota e manda no almoço ou depois do expediente.</div>
+      <div class="row" style="margin-top:10px"><input id="mIn" placeholder="Ex.: mandar aquele vídeo pro João"><button id="mAdd" style="flex:0 0 auto">+</button></div>
+      <ul id="mList" class="lst"></ul>
+    </div>
+  </section>
+
+  <!-- ================= COMBINADOS ================= -->
+  <section id="s-comb" class="hide">
+    <div class="card">
+      <h2>Escreve isso enquanto está bem</h2>
+      <p class="mut">Na hora da raiva, a cabeça não alcança o que você decidiu com calma. A pesquisa chama isso de lacuna de empatia quente-fria. Por isso o Pausa guarda as suas palavras de agora e mostra elas na hora ruim.</p>
+      <p class="mut">Escreve hoje. Depois, só mexe aqui no dia da revisão: ajustar toda hora é montar sistema em vez de usar.</p>
+    </div>
+
+    <div class="card">
+      <h2>Recado pra mim na hora ruim</h2>
+      <textarea data-c="carta" maxlength="400" rows="4" placeholder="Ex.: Você sabe como terminou. Mensagem mandada com raiva nunca resolveu nada. Em 10 minutos você pensa melhor. Liga pro ___."></textarea>
+    </div>
+
+    <div class="card">
+      <h2>Meus combinados (até 3)</h2>
+      <div class="mut">Se acontecer X, então eu faço Y. Decidido antes, sai quase no automático.</div>
+      <label>1 · Se…</label><input data-c="ses.0.se" maxlength="90" placeholder="der vontade de olhar o perfil dela">
+      <label>então…</label><input data-c="ses.0.en" maxlength="90" placeholder="abro o Pausa e espero 10 minutos">
+      <label>2 · Se…</label><input data-c="ses.1.se" maxlength="90" placeholder="chegar da aula">
+      <label>então…</label><input data-c="ses.1.en" maxlength="90" placeholder="o celular fica carregando na sala">
+      <label>3 · Se…</label><input data-c="ses.2.se" maxlength="90" placeholder="for domingo à tarde e a casa estiver vazia">
+      <label>então…</label><input data-c="ses.2.en" maxlength="90" placeholder="saio pra caminhar ou chamo alguém">
+    </div>
+
+    <div class="card">
+      <h2>Fatos reais (pra quando bater saudade)</h2>
+      <div class="mut">A saudade lembra a versão boa. Aqui fica a versão completa. Lembrar os fatos diminui o apego, mas pesa na hora, por isso o app junta isso com música e movimento.</div>
+      <input data-c="fatos.0" maxlength="120" placeholder="Um fato, não uma interpretação" style="margin-top:10px">
+      <input data-c="fatos.1" maxlength="120" placeholder="Outro fato" style="margin-top:8px">
+      <input data-c="fatos.2" maxlength="120" placeholder="Outro fato" style="margin-top:8px">
+    </div>
+
+    <div class="card">
+      <h2>Músicas que me levantam</h2>
+      <div class="mut">As que te levantam, não as de término: música triste no repeat pode alimentar a ruminação. Cola o link do Spotify ou YouTube.</div>
+      <div class="row" style="margin-top:10px"><input data-c="mus.0.n" maxlength="60" placeholder="Nome"><input data-c="mus.0.u" placeholder="Link"></div>
+      <div class="row" style="margin-top:8px"><input data-c="mus.1.n" maxlength="60" placeholder="Nome"><input data-c="mus.1.u" placeholder="Link"></div>
+      <div class="row" style="margin-top:8px"><input data-c="mus.2.n" maxlength="60" placeholder="Nome"><input data-c="mus.2.u" placeholder="Link"></div>
+    </div>
+
+    <div class="card">
+      <h2>Pessoa de confiança</h2>
+      <div class="mut">Aparece no botão Ajuda agora e na hora do momento forte.</div>
+      <div class="row" style="margin-top:10px"><input data-c="pessoa.n" maxlength="40" placeholder="Nome"><input data-c="pessoa.tel" type="tel" maxlength="20" placeholder="(DDD) número"></div>
+    </div>
+
+    <div class="card">
+      <h2>Plano de segurança</h2>
+      <div class="mut">Modelo Stanley-Brown: 6 passos, usados em ordem até passar. Preenche num dia calmo.</div>
+      <div id="planoBox"></div>
+    </div>
+
+    <div class="card">
+      <h2>Minhas alternativas ao feed</h2>
+      <div class="mut">Coisas curtas que aparecem quando bate vontade de rolar o feed.</div>
+      <div class="row" style="margin-top:10px"><input id="aAltIn" placeholder="Nova alternativa"><button id="aAltAdd" style="flex:0 0 auto">+</button></div>
+      <ul id="aList" class="lst"></ul>
+    </div>
+  </section>
+
+  <!-- ================= 15 DIAS ================= -->
+  <section id="s-ciclo" class="hide">
+    <div class="card" id="cNovo">
+      <h2>15 dias</h2>
+      <p class="mut">Um experimento com data pra acabar. No dia 15 você decide: mais 15 dias, levar pro papel ou parar. O objetivo é precisar menos do app.</p>
+      <button class="main" id="cIni">Começar hoje</button>
+    </div>
+
+    <div id="cAtivo" class="hide">
+      <div class="card">
+        <h2 id="cDia"></h2>
+        <div class="mut" id="cDatas"></div>
+        <div class="dias" id="cGrid"></div>
+        <p style="margin-top:12px" id="cFeito"></p>
+        <div class="mut">Regra: não falhar dois dias seguidos. Falhar um não atrapalha o hábito.</div>
+        <p class="aviso hide" id="cAviso">Ontem não teve ação. Pela regra, hoje conta.</p>
+      </div>
+
+      <div class="card hide" id="cRev">
+        <h2>Revisão</h2>
+        <p class="mut">Olha a grade acima e os números abaixo. Depois escolhe.</p>
+        <label style="display:flex;gap:8px;align-items:center;color:var(--txt)"><input type="checkbox" id="cAjuda" style="width:auto"> Procurei ajuda profissional</label>
+        <button class="full" id="cMais">Mais 15 dias</button>
+        <button class="full" id="cPapel">Levar pro papel</button>
+        <button class="full" id="cParar">Parar</button>
+        <p class="ok hide" id="cDec"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Números</h2>
+      <p id="sEmo"></p>
+      <p id="sFeed"></p>
+      <p class="mut" id="sHora"></p>
+      <details><summary>Histórico</summary><ul id="hList"></ul></details>
+    </div>
+
+    <div class="card">
+      <h2>Seus dados</h2>
+      <p class="mut">Tudo fica só neste celular, sem conta e sem nuvem.</p>
+      <div class="row"><button id="exp">Exportar</button><button id="del">Apagar tudo</button></div>
+    </div>
+  </section>
+</div>
+
+<!-- ================= MOMENTO FORTE ================= -->
+<div class="over hide" id="flow" role="dialog" aria-label="Momento forte">
+  <div class="wrap">
+    <div class="top"><button class="link" id="fSair">← Sair</button><button class="help" data-help>Ajuda agora</button></div>
+
+    <div id="f1">
+      <h2 style="margin-top:14px">O que tá vindo?</h2>
+      <p class="mut">Só dá nome. Nomear já tira um pouco da força.</p>
+      <div class="chips" id="fE"></div>
+      <p class="mut" style="margin-top:14px">Quão forte, de 0 a 10? <b id="fAv" style="color:var(--txt)">7</b></p>
+      <input type="range" id="fA" min="0" max="10" value="7">
+      <button class="main" id="f1n" style="margin-top:10px">Próximo</button>
+    </div>
+
+    <div id="f2" class="hide">
+      <h2 style="margin-top:14px">1 minuto pra baixar o corpo</h2>
+      <p class="mut" id="f2msg"></p>
+      <div class="circ" id="circ"></div>
+      <div class="sug center" id="bTxt"></div>
+      <div class="mut center" id="bCont">1:00</div>
+      <button class="main" id="f2n" style="margin-top:14px">Próximo</button>
+    </div>
+
+    <div id="f3" class="hide">
+      <h2 style="margin-top:14px">Você combinou com você</h2>
+      <div id="fCartaBox">
+        <div class="mut" id="fCartaEm"></div>
+        <div class="carta" id="fCarta"></div>
+      </div>
+      <ul id="fSes"></ul>
+      <div id="fFatosBox" class="hide"><div class="mut" style="margin-top:10px">Fatos reais que você escreveu:</div><ul id="fFatos"></ul></div>
+      <div id="fMus"></div>
+      <p class="mut hide" id="fVazio">Você ainda não escreveu seus combinados. Quando estiver bem, abre "Combinados" e escreve com as suas palavras. Por enquanto, vale a regra abaixo.</p>
+      <div class="regra"><b>Regra dos 10 minutos:</b> nada de mandar mensagem, postar ou olhar perfil agora. Espera 10 minutos. Depois você decide, com a cabeça mais fria.</div>
+      <button class="main" id="f3n" style="margin-top:14px">Começar os 10 minutos</button>
+    </div>
+
+    <div id="f4" class="hide">
+      <h2 style="margin-top:14px">10 minutos</h2>
+      <div class="big center" id="f10">10:00</div>
+      <p class="mut">Enquanto isso, escolhe uma:</p>
+      <ul>
+        <li>Sai de onde você está e anda devagar: outro cômodo ou lá fora.</li>
+        <li>Põe uma das suas músicas.</li>
+        <li>Fala com alguém sobre qualquer assunto. Não precisa ser sobre isso.</li>
+        <li>Lava o rosto e bebe um copo d'água.</li>
+      </ul>
+      <div id="fMus2"></div>
+      <div id="fPessoa4"></div>
+      <button class="main" id="f4n" style="margin-top:14px">Já baixou</button>
+    </div>
+
+    <div id="f5" class="hide">
+      <h2 style="margin-top:14px">E agora, quão forte?</h2>
+      <p class="mut">De 0 a 10: <b id="fBv" style="color:var(--txt)">5</b></p>
+      <input type="range" id="fB" min="0" max="10" value="5">
+      <button class="main" id="f5n" style="margin-top:10px">Registrar</button>
+      <div id="fRes" class="hide">
+        <p class="sug" id="fResTxt"></p>
+        <div id="fAlto" class="hide">
+          <p>Ainda tá alto. Próximo passo: falar com alguém agora, não depois.</p>
+          <div id="fPessoa5"></div>
+          <button class="full" id="fMais">Mais 10 minutos</button>
+          <button class="full help" data-help>Ajuda agora</button>
+        </div>
+        <div id="fBaixo" class="hide">
+          <p class="mut">Registrado. Se voltar, abre de novo.</p>
+        </div>
+        <button class="full" id="fFechar">Fechar</button>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="tabs">
-    <button class="on" data-t="mandar">Mandar depois</button>
-    <button data-t="alt">Minhas alternativas</button>
-    <button data-t="hist">Histórico</button>
-  </div>
-
-  <div class="card" id="t-mandar">
-    <div class="mut">Lembrou de alguém ou de algo pra mandar? Anota e manda no almoço ou depois do expediente.</div>
-    <div class="row" style="margin-top:10px"><input id="mIn" placeholder="Ex.: mandar aquele vídeo pro João"><button id="mAdd">+</button></div>
-    <ul id="mList"></ul>
-  </div>
-
-  <div class="card hide" id="t-alt">
-    <div class="mut">Coisas curtas pra fazer no lugar do feed.</div>
-    <div class="row" style="margin-top:10px"><input id="aIn" placeholder="Nova alternativa"><button id="aAdd">+</button></div>
-    <ul id="aList"></ul>
-  </div>
-
-  <div class="card hide" id="t-hist">
-    <div class="mut">Em que horários a vontade mais aparece.</div>
-    <ul id="hList"></ul>
+<!-- ================= AJUDA AGORA ================= -->
+<div class="over hide" id="ajuda" role="dialog" aria-label="Ajuda agora">
+  <div class="wrap">
+    <div class="top"><h1>Ajuda agora</h1><button id="ajFechar">Fechar</button></div>
+    <a class="btn help" href="tel:192" style="margin-top:16px">Tomei remédio além da dose ou estou em perigo: SAMU 192</a>
+    <a class="btn" href="tel:188">Conversar agora: CVV 188 (grátis, 24h)</a>
+    <a class="btn" href="https://cvv.org.br" target="_blank" rel="noopener">Chat do CVV (cvv.org.br)</a>
+    <div id="ajPessoa"></div>
+    <a class="btn" href="https://podefalar.org.br" target="_blank" rel="noopener">Pode Falar: escuta online, 13 a 24 anos</a>
+    <div class="card">
+      <h2>Meu plano de segurança</h2>
+      <ul id="ajPlano"></ul>
+      <p class="mut hide" id="ajPlanoVazio">Ainda vazio. Preenche em Combinados num dia calmo.</p>
+    </div>
+    <p class="mut">Teste uma vez se os botões abrem o discador com o número certo. Não precisa completar a ligação.</p>
   </div>
 </div>
+
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const $=id=>document.getElementById(id);
 const mem={};
 function load(k,d){try{const v=localStorage.getItem('pausa_'+k);return v?JSON.parse(v):d}catch(e){return k in mem?mem[k]:d}}
 function save(k,v){mem[k]=v;try{localStorage.setItem('pausa_'+k,JSON.stringify(v))}catch(e){}}
+function el(tag,props,kids){const e=document.createElement(tag);Object.assign(e,props||{});(kids||[]).forEach(k=>e.append(k));return e}
+let tt;function toast(s){const t=$('toast');t.textContent=s;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1400)}
 
+/* ---------- datas ---------- */
+const dkey=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const addDays=(k,n)=>{const[y,m,d]=k.split('-').map(Number);return dkey(new Date(y,m-1,d+n))};
+const ddmm=k=>k.slice(8,10)+'/'+k.slice(5,7);
+const diffDias=(a,b)=>{const p=k=>{const[y,m,d]=k.split('-').map(Number);return Date.UTC(y,m-1,d)};return Math.round((p(b)-p(a))/864e5)};
+const mesmoDia=t=>new Date(t).toDateString()===new Date().toDateString();
+const hm=t=>new Date(t).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+/* ---------- dados ---------- */
 let cfg=load('cfg',{ini:'08:00',fim:'18:00'});
 let alts=load('alts',['Ler e traduzir uma frase em inglês','Rabiscar uma ideia de cartaz','Levantar, pegar água e alongar','Adiantar uma tarefa pequena do trabalho','Organizar a mesa ou a área de trabalho do PC','Aprender um atalho de teclado novo','Anotar uma ideia pra um projeto pessoal']);
 let mandar=load('mandar',[]);
 let log=load('log',[]);
+let humor=load('humor',{});
+let acao=load('acao',{});
+let emo=load('emo',[]);
+let ciclo=load('ciclo',null);
+let amanha=load('amanha',{d:'',txt:''});
+const COMB0={carta:'',cartaEm:'',ses:[{se:'',en:''},{se:'',en:''},{se:'',en:''}],fatos:['','',''],mus:[{n:'',u:''},{n:'',u:''},{n:'',u:''}],pessoa:{n:'',tel:''},plano:['','','','','','']};
+let comb=Object.assign(JSON.parse(JSON.stringify(COMB0)),load('comb',{}));
 
+/* ---------- navegação ---------- */
+function tela(s){
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
+  ['hoje','comb','ciclo'].forEach(x=>$('s-'+x).classList.toggle('hide',x!==s));
+  if(s==='ciclo')renderCiclo();
+  scrollTo(0,0);
+}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>tela(b.dataset.s));
+
+/* ---------- noite ---------- */
+function modo(){
+  const h=new Date().getHours(),n=h>=22||h<5;
+  $('noite').classList.toggle('hide',!n);
+  document.querySelectorAll('.so-dia').forEach(x=>x.classList.toggle('hide',n));
+  $('data').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit'});
+}
+$('nTxt').value=amanha.txt&&amanha.d>=dkey()?amanha.txt:'';
+let nT;$('nTxt').addEventListener('input',()=>{const h=new Date().getHours();amanha={d:h<5?dkey():addDays(dkey(),1),txt:$('nTxt').value};clearTimeout(nT);nT=setTimeout(()=>{save('amanha',amanha);toast('Anotado pra amanhã')},600)});
+
+/* ---------- humor ---------- */
+const HUM=['','muito pesado','pesado','no meio','ok','leve'];
+const PAL=['triste','ansioso','com raiva','sozinho','com saudade','cansado','aliviado','calmo'];
+for(let n=1;n<=5;n++){
+  const b=el('button',{type:'button'});b.dataset.m=n;b.setAttribute('aria-label',n+', '+HUM[n]);
+  const sw=el('span',{className:'sw',textContent:n});sw.style.background='var(--m'+n+')';
+  b.append(sw,el('small',{textContent:HUM[n]}));
+  b.onclick=()=>{const k=dkey();humor[k]=Object.assign(humor[k]||{},{m:n,t:Date.now()});save('humor',humor);renderHumor()};
+  $('moods').append(b);
+}
+PAL.forEach(w=>{const b=el('button',{type:'button',textContent:w});b.onclick=()=>{const h=humor[dkey()];if(!h)return;h.w=h.w===w?'':w;save('humor',humor);renderHumor()};$('pal').append(b)});
+function renderHumor(){
+  const h=humor[dkey()];
+  document.querySelectorAll('#moods button').forEach(b=>b.setAttribute('aria-pressed',String(!!h&&h.m==b.dataset.m)));
+  document.querySelectorAll('#pal button').forEach(b=>b.setAttribute('aria-pressed',String(!!h&&h.w===b.textContent)));
+  $('palBox').classList.toggle('hide',!h);
+  $('hSt').textContent=h?'Registrado às '+hm(h.t)+': '+h.m+', '+HUM[h.m]+(h.w?', '+h.w:'')+'. Se mudar, toca de novo.':'Um toque, uma vez por dia.';
+}
+
+/* ---------- ação de hoje ---------- */
+function renderAcao(){
+  const k=dkey(),a=acao[k],tem=!!(a&&a.txt),h=new Date().getHours();
+  $('aSet').classList.toggle('hide',tem);$('aShow').classList.toggle('hide',!tem);
+  if(tem){
+    $('aTxt').textContent=a.txt;
+    $('aDone').classList.toggle('hide',!!a.done);$('aTroca').classList.toggle('hide',!!a.done);
+    $('aComp').classList.toggle('hide',!(a.done&&!a.comp));
+    $('aOk').classList.toggle('hide',!(a.done&&a.comp));
+    if(a.comp)$('aOk').textContent='✓ Feito. Foi '+a.comp+' do que você esperava.';
+  }
+  const nota=amanha.d===k&&amanha.txt.trim()&&h>=5;
+  $('aNota').classList.toggle('hide',!nota);
+  if(nota)$('aNota').textContent='Ontem à noite você anotou: '+amanha.txt.trim();
+  $('aTomBox').classList.toggle('hide',h<19);
+  const t=acao[addDays(k,1)];
+  $('aTomSt').textContent=t&&t.txt?'Amanhã: '+t.txt:'';
+}
+$('aDef').onclick=()=>{const v=$('aIn').value.trim();if(!v){$('aIn').focus();return}acao[dkey()]={txt:v};save('acao',acao);$('aIn').value='';renderAcao()};
+$('aIn').onkeydown=e=>{if(e.key==='Enter')$('aDef').click()};
+$('aDone').onclick=()=>{acao[dkey()].done=Date.now();save('acao',acao);renderAcao()};
+$('aTroca').onclick=()=>{$('aIn').value=acao[dkey()].txt;delete acao[dkey()];save('acao',acao);renderAcao();$('aIn').focus()};
+document.querySelectorAll('#aComp button').forEach(b=>b.onclick=()=>{acao[dkey()].comp=b.dataset.v;save('acao',acao);renderAcao()});
+$('aTomSalvar').onclick=()=>{const v=$('aTomIn').value.trim();if(!v){$('aTomIn').focus();return}const tk=addDays(dkey(),1);acao[tk]=Object.assign(acao[tk]||{},{txt:v});save('acao',acao);$('aTomIn').value='';renderAcao();toast('Combinado pra amanhã')};
+$('aTomIn').onkeydown=e=>{if(e.key==='Enter')$('aTomSalvar').click()};
+
+/* ---------- expediente ---------- */
 const toMin=s=>{const[a,b]=s.split(':').map(Number);return a*60+b};
 function relogio(){
   const n=new Date(),agora=n.getHours()*60+n.getMinutes()+n.getSeconds()/60;
   const i=toMin(cfg.ini),f=toMin(cfg.fim);
   $('hrs').textContent=cfg.ini+' – '+cfg.fim;
-  if(agora>=f){$('falta').textContent='Pode ir! 🎉';$('prog').style.width='100%';return}
+  if(agora>=f){$('falta').textContent='Pode ir!';$('prog').style.width='100%';return}
   const r=Math.ceil((f-agora)*60),h=Math.floor(r/3600),m=Math.floor(r%3600/60),s=r%60;
   $('falta').textContent=(h?h+'h ':'')+String(m).padStart(2,'0')+'m '+String(s).padStart(2,'0')+'s';
   $('prog').style.width=Math.max(0,Math.min(100,(agora-i)/(f-i)*100))+'%';
 }
 setInterval(relogio,1000);relogio();
-$('editH').onclick=e=>{e.preventDefault();$('hIni').value=cfg.ini;$('hFim').value=cfg.fim;$('hBox').classList.toggle('hide')};
+$('editH').onclick=()=>{$('hIni').value=cfg.ini;$('hFim').value=cfg.fim;$('hBox').classList.toggle('hide')};
 $('hSalvar').onclick=()=>{cfg={ini:$('hIni').value||cfg.ini,fim:$('hFim').value||cfg.fim};save('cfg',cfg);$('hBox').classList.add('hide');relogio()};
 
-const hojeStr=()=>new Date().toDateString();
-function contadores(){const h=log.filter(x=>new Date(x.t).toDateString()===hojeStr());$('hoje').textContent=h.length;$('venc').textContent=h.filter(x=>x.r==='ok').length}
-
-let tm=null,rest=120,ult=-1;
+/* ---------- vontade de rolar o feed (2 min) ---------- */
+function contadores(){
+  const h=log.filter(x=>mesmoDia(x.t));
+  $('hoje').textContent=h.length;$('venc').textContent=h.filter(x=>x.r==='ok').length;
+  $('emoHoje').textContent=emo.filter(x=>mesmoDia(x.t)).length;
+}
+let tm=null,rest=120,ult=-1,fimT=null;
 const R=a=>a[Math.floor(Math.random()*a.length)];
 const POOL={
  atalho:[
@@ -158,39 +551,212 @@ function tipo(t){t=t.toLowerCase();if(t.includes('atalho'))return'atalho';if(t.i
 function detalhar(t){
   const d=$('det'),tb=$('trad');d.classList.add('hide');tb.classList.add('hide');d.innerHTML='';
   const k=tipo(t);if(!k)return;d.classList.remove('hide');
-  if(k==='atalho'){const[a,b]=R(POOL.atalho);d.innerHTML='<div style="font-size:22px;font-weight:700;margin-bottom:6px"></div><div></div>';d.children[0].textContent=a;d.children[1].textContent=b+' Testa agora.'}
-  else if(k==='ingles'){const[a,b]=R(POOL.ingles);d.innerHTML='<div style="font-size:18px;font-weight:600"></div><div class="mut" style="margin-top:6px">Tenta traduzir de cabeça antes de ver.</div>';d.children[0].textContent=a;tb.classList.remove('hide');tb.onclick=()=>{d.children[1].textContent=b;d.children[1].style.color='var(--ac)';tb.classList.add('hide')}}
+  if(k==='atalho'){const[a,b]=R(POOL.atalho);d.append(el('div',{textContent:a,style:'font-size:22px;font-weight:700;margin-bottom:6px'}),el('div',{textContent:b+' Testa agora.'}))}
+  else if(k==='ingles'){const[a,b]=R(POOL.ingles);const res=el('div',{className:'mut',textContent:'Tenta traduzir de cabeça antes de ver.',style:'margin-top:6px'});d.append(el('div',{textContent:a,style:'font-size:18px;font-weight:600'}),res);tb.classList.remove('hide');tb.onclick=()=>{res.textContent=b;res.style.color='var(--ac)';tb.classList.add('hide')}}
   else d.textContent=R(POOL[k]);
 }
-function sugerir(){if(!alts.length){$('sug').textContent='Cadastre alternativas abaixo';return}let k;do{k=Math.floor(Math.random()*alts.length)}while(alts.length>1&&k===ult);ult=k;$('sug').textContent=alts[k];detalhar(alts[k])}
+function sugerir(){if(!alts.length){$('sug').textContent='Cadastre alternativas em Combinados';return}let k;do{k=Math.floor(Math.random()*alts.length)}while(alts.length>1&&k===ult);ult=k;$('sug').textContent=alts[k];detalhar(alts[k])}
 $('vontade').onclick=()=>{
   $('inicio').classList.add('hide');$('pausa').classList.remove('hide');$('fim').classList.add('hide');
-  sugerir();rest=120;$('timer').textContent='2:00';clearInterval(tm);
+  sugerir();rest=120;$('timer').textContent='2:00';clearInterval(tm);clearTimeout(fimT);
   tm=setInterval(()=>{rest--;$('timer').textContent=Math.floor(rest/60)+':'+String(rest%60).padStart(2,'0');if(rest<=0){clearInterval(tm);$('timer').textContent='0:00';$('fim').classList.remove('hide')}},1000);
-  setTimeout(()=>$('fim').classList.remove('hide'),30000);
+  fimT=setTimeout(()=>$('fim').classList.remove('hide'),30000);
 };
 $('outra').onclick=sugerir;
-function fechar(r){clearInterval(tm);log.unshift({t:Date.now(),r,s:$('sug').textContent});log=log.slice(0,300);save('log',log);$('pausa').classList.add('hide');$('inicio').classList.remove('hide');contadores();renderHist()}
+function fechar(r){clearInterval(tm);clearTimeout(fimT);log.unshift({t:Date.now(),r,s:$('sug').textContent});log=log.slice(0,300);save('log',log);$('pausa').classList.add('hide');$('inicio').classList.remove('hide');contadores()}
 $('ok').onclick=()=>fechar('ok');$('abri').onclick=()=>fechar('abri');
 
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');['mandar','alt','hist'].forEach(t=>$('t-'+t).classList.toggle('hide',t!==b.dataset.t))});
-
-function lista(el,arr,key,rerender){el.innerHTML='';arr.forEach((x,i)=>{const li=document.createElement('li');const sp=document.createElement('span');sp.textContent=x;const b=document.createElement('button');b.textContent=key==='mandar'?'Feito':'×';b.onclick=()=>{arr.splice(i,1);save(key,arr);rerender()};li.append(sp,b);el.append(li)})}
+/* ---------- listas ---------- */
+function lista(ul,arr,key,rer){ul.innerHTML='';arr.forEach((x,i)=>{const b=el('button',{textContent:key==='mandar'?'Feito':'×'});b.setAttribute('aria-label',key==='mandar'?'Marcar como feito':'Remover');b.onclick=()=>{arr.splice(i,1);save(key,arr);rer()};ul.append(el('li',{},[el('span',{textContent:x}),b]))})}
 function renderM(){lista($('mList'),mandar,'mandar',renderM)}
 function renderA(){lista($('aList'),alts,'alts',renderA)}
 $('mAdd').onclick=()=>{const v=$('mIn').value.trim();if(v){mandar.push(v);save('mandar',mandar);$('mIn').value='';renderM()}};
-$('aAdd').onclick=()=>{const v=$('aIn').value.trim();if(v){alts.push(v);save('alts',alts);$('aIn').value='';renderA()}};
-$('mIn').onkeydown=e=>{if(e.key==='Enter')$('mAdd').click()};$('aIn').onkeydown=e=>{if(e.key==='Enter')$('aAdd').click()};
+$('aAltAdd').onclick=()=>{const v=$('aAltIn').value.trim();if(v){alts.push(v);save('alts',alts);$('aAltIn').value='';renderA()}};
+$('mIn').onkeydown=e=>{if(e.key==='Enter')$('mAdd').click()};$('aAltIn').onkeydown=e=>{if(e.key==='Enter')$('aAltAdd').click()};
 
-function renderHist(){
-  const el=$('hList');el.innerHTML='';
-  if(!log.length){el.innerHTML='<li class="mut">Nada ainda.</li>';return}
-  const por={};log.forEach(x=>{const h=new Date(x.t).getHours();por[h]=(por[h]||0)+1});
-  const top=Object.entries(por).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([h,c])=>h+'h ('+c+')').join(' · ');
-  const li0=document.createElement('li');li0.innerHTML='<b>Horários com mais vontade:</b> <span></span>';li0.querySelector('span').textContent=top;el.append(li0);
-  log.slice(0,30).forEach(x=>{const d=new Date(x.t);const li=document.createElement('li');const a=document.createElement('span');a.textContent=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});const b=document.createElement('span');b.textContent=x.r==='ok'?'✅ não abriu':'📱 abriu';b.style.color=x.r==='ok'?'var(--ac)':'var(--warn)';li.append(a,b);el.append(li)});
+/* ---------- combinados (salva sozinho) ---------- */
+const PLANO=['Sinais de que estou entrando numa crise','O que eu consigo fazer sozinho pra baixar','Pessoas e lugares que me distraem','Pessoas a quem posso pedir ajuda','Profissionais e serviços','Deixar o ambiente mais seguro'];
+const PLANO_PH=['Ex.: fico relendo conversa, coração dispara, penso "sempre vai ser assim"','Ex.: respirar 1 min, sair andando, tomar banho, minhas músicas','Ex.: casa de um amigo, igreja, praça','Nome e telefone de 2 pessoas','CVV 188 · SAMU 192 · plantão psicológico da faculdade · UBS','Remédio em casa só em embalagem pequena. O resto fica com alguém da família.'];
+PLANO.forEach((t,i)=>{$('planoBox').append(el('label',{textContent:(i+1)+' · '+t}));const ta=el('textarea',{maxLength:300,rows:2,placeholder:PLANO_PH[i]});ta.dataset.c='plano.'+i;ta.style.minHeight='60px';$('planoBox').append(ta)});
+const getP=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
+function setP(o,p,v){const ks=p.split('.'),last=ks.pop();ks.reduce((a,k)=>a[k],o)[last]=v}
+let sv;
+document.querySelectorAll('[data-c]').forEach(i=>{
+  i.value=getP(comb,i.dataset.c)||'';
+  i.addEventListener('input',()=>{setP(comb,i.dataset.c,i.value);if(i.dataset.c==='carta')comb.cartaEm=dkey();clearTimeout(sv);sv=setTimeout(()=>{save('comb',comb);toast('Salvo')},500)});
+});
+
+/* ---------- pessoa e músicas ---------- */
+function telDig(){return(comb.pessoa.tel||'').replace(/\D/g,'').replace(/^0+/,'')}
+function renderPessoa(box){
+  box.innerHTML='';const d=telDig(),n=comb.pessoa.n.trim()||'pessoa de confiança';
+  if(d.length<8){box.append(el('p',{className:'mut',textContent:'Cadastre uma pessoa de confiança em Combinados.'}));return}
+  box.append(el('a',{className:'btn',href:'tel:'+d,textContent:'Ligar pra '+n}));
+  box.append(el('a',{className:'btn',href:'https://wa.me/'+(d.length<=11?'55'+d:d),target:'_blank',rel:'noopener',textContent:'WhatsApp pra '+n}));
 }
-renderM();renderA();renderHist();contadores();
+const urlOk=u=>{u=u.trim();return/^https?:\/\//i.test(u)?u:'https://'+u};
+function renderMus(box){
+  box.innerHTML='';
+  comb.mus.filter(m=>m.u.trim()).forEach(m=>box.append(el('a',{className:'btn',href:urlOk(m.u),target:'_blank',rel:'noopener',textContent:'♪ '+(m.n.trim()||'Minha música')})));
+}
+
+/* ---------- momento forte ---------- */
+const EMOS=['raiva','saudade','ciúme','tristeza','ansiedade','vazio','vontade de olhar o perfil dela','vontade de mandar mensagem'];
+const APEGO=/saudade|ciúme|perfil|mensagem/;
+let F={},fT=null,bT=null,bC=null;
+EMOS.forEach(w=>{const b=el('button',{type:'button',textContent:w});b.onclick=()=>{F.e=F.e===w?'':w;marcarE()};$('fE').append(b)});
+function marcarE(){document.querySelectorAll('#fE button').forEach(b=>b.setAttribute('aria-pressed',String(b.textContent===F.e)))}
+$('fA').oninput=()=>{$('fAv').textContent=$('fA').value};
+$('fB').oninput=()=>{$('fBv').textContent=$('fB').value};
+function limparT(){clearInterval(fT);clearTimeout(bT);clearInterval(bC)}
+function passo(n){
+  limparT();
+  for(let i=1;i<=5;i++)$('f'+i).classList.toggle('hide',i!==n);
+  $('flow').scrollTop=0;
+  if(n>1)F.passou=true;
+  if(n===2)respirar();
+  if(n===3)mostrarComb();
+  if(n===4)dez();
+  if(n===5){$('f5n').classList.remove('hide');$('fRes').classList.add('hide');$('fB').value=Math.max(0,F.a-2);$('fBv').textContent=$('fB').value}
+}
+function abrirFlow(tipo){
+  F={tipo,e:tipo==='perfil'?'vontade de olhar o perfil dela':'',a:7,t:Date.now(),reg:false,passou:false};
+  $('fA').value=7;$('fAv').textContent=7;marcarE();
+  $('flow').classList.remove('hide');document.body.style.overflow='hidden';passo(1);
+}
+function registrar(b){
+  if(F.reg){const x=emo.find(x=>x.t===F.t);if(x){x.b=b;save('emo',emo)}return}
+  emo.unshift({t:F.t,e:F.e||'',a:F.a,b,k:F.tipo});emo=emo.slice(0,500);save('emo',emo);F.reg=true;
+}
+function fecharFlow(){
+  limparT();
+  if(F.passou&&!F.reg)registrar(null);
+  $('flow').classList.add('hide');document.body.style.overflow='';
+  contadores();
+}
+$('bEmo').onclick=()=>abrirFlow('emo');
+$('bPerfil').onclick=()=>abrirFlow('perfil');
+$('fSair').onclick=fecharFlow;$('fFechar').onclick=fecharFlow;
+$('f1n').onclick=()=>{F.a=+$('fA').value;passo(2)};
+$('f2n').onclick=()=>passo(3);
+$('f3n').onclick=()=>passo(4);
+$('f4n').onclick=()=>passo(5);
+$('fMais').onclick=()=>passo(4);
+
+function respirar(){
+  $('f2msg').textContent=F.e==='raiva'
+    ?'Com raiva, o que ajuda é baixar a ativação do corpo. Descarregar (socar, gritar, mandar áudio) costuma aumentar a raiva.'
+    :'Expiração mais longa que a inspiração: é a parte do corpo que você controla quando o coração dispara.';
+  const c=$('circ'),tx=$('bTxt'),fim=Date.now()+60000;
+  const fases=[['Puxa o ar pelo nariz',2000,1],['Puxa mais um pouco',1000,1.15],['Solta devagar pela boca',6000,.6]];
+  let i=0;c.style.transition='none';c.style.transform='scale(.6)';void c.offsetWidth;
+  const go=()=>{const[f,ms,s]=fases[i%3];tx.textContent=f;c.style.transition='transform '+ms+'ms ease-in-out';c.style.transform='scale('+s+')';i++;bT=setTimeout(go,ms)};
+  go();
+  $('bCont').textContent='1:00';
+  bC=setInterval(()=>{const r=Math.max(0,Math.ceil((fim-Date.now())/1000));$('bCont').textContent=Math.floor(r/60)+':'+String(r%60).padStart(2,'0');if(r<=0){clearInterval(bC);clearTimeout(bT);tx.textContent='Pronto. Pode seguir.'}},500);
+}
+function mostrarComb(){
+  const carta=comb.carta.trim();
+  $('fCartaBox').classList.toggle('hide',!carta);
+  if(carta){$('fCarta').textContent=carta;$('fCartaEm').textContent='Escrito por você'+(comb.cartaEm?' em '+ddmm(comb.cartaEm):'')+', num momento bom:'}
+  const ses=comb.ses.filter(s=>s.se.trim()&&s.en.trim());
+  $('fSes').innerHTML='';ses.forEach(s=>$('fSes').append(el('li',{textContent:'Se '+s.se.trim()+' → '+s.en.trim()})));
+  const fatos=comb.fatos.filter(x=>x.trim());
+  $('fFatos').innerHTML='';fatos.forEach(x=>$('fFatos').append(el('li',{textContent:x.trim()})));
+  $('fFatosBox').classList.toggle('hide',!(fatos.length&&(F.tipo==='perfil'||APEGO.test(F.e))));
+  renderMus($('fMus'));
+  $('fVazio').classList.toggle('hide',!!(carta||ses.length));
+}
+function dez(){
+  const fim=Date.now()+600000;
+  const upd=()=>{const r=Math.max(0,Math.ceil((fim-Date.now())/1000));$('f10').textContent=Math.floor(r/60)+':'+String(r%60).padStart(2,'0');if(r<=0){clearInterval(fT);if(navigator.vibrate)navigator.vibrate(200);passo(5)}};
+  upd();fT=setInterval(upd,500);
+  renderMus($('fMus2'));renderPessoa($('fPessoa4'));
+}
+$('f5n').onclick=()=>{
+  const b=+$('fB').value;registrar(b);
+  $('fResTxt').textContent='Antes: '+F.a+' · agora: '+b+'.';
+  const alto=b>=7;
+  $('fAlto').classList.toggle('hide',!alto);$('fBaixo').classList.toggle('hide',alto);
+  if(alto)renderPessoa($('fPessoa5'));
+  $('fRes').classList.remove('hide');$('f5n').classList.add('hide');
+  contadores();
+};
+
+/* ---------- ajuda agora ---------- */
+function abrirAjuda(){
+  renderPessoa($('ajPessoa'));
+  const ul=$('ajPlano');ul.innerHTML='';
+  PLANO.forEach((t,i)=>{const v=(comb.plano[i]||'').trim();if(v)ul.append(el('li',{},[el('b',{textContent:(i+1)+'. '+t+': '}),document.createTextNode(v)]))});
+  $('ajPlanoVazio').classList.toggle('hide',ul.children.length>0);
+  $('ajuda').classList.remove('hide');document.body.style.overflow='hidden';$('ajuda').scrollTop=0;
+}
+document.querySelectorAll('[data-help]').forEach(b=>b.onclick=abrirAjuda);
+$('ajFechar').onclick=()=>{$('ajuda').classList.add('hide');if($('flow').classList.contains('hide'))document.body.style.overflow=''};
+
+/* ---------- 15 dias ---------- */
+function renderCiclo(){
+  $('cNovo').classList.toggle('hide',!!ciclo);$('cAtivo').classList.toggle('hide',!ciclo);
+  renderStats();
+  if(!ciclo)return;
+  const hoje=dkey(),dia=diffDias(ciclo.ini,hoje)+1,passados=Math.min(Math.max(dia,1),15);
+  $('cDia').textContent=dia>15?'Os 15 dias acabaram':'Dia '+dia+' de 15';
+  $('cDatas').textContent='Começou em '+ddmm(ciclo.ini)+' · revisão em '+ddmm(addDays(ciclo.ini,14));
+  const g=$('cGrid');g.innerHTML='';let feitos=0;
+  for(let i=0;i<15;i++){
+    const k=addDays(ciclo.ini,i),h=humor[k],a=acao[k],fez=!!(a&&a.done);
+    if(fez&&i<passados)feitos++;
+    const b=el('b',{textContent:h?h.m:'·'});
+    if(h){b.style.background='var(--m'+h.m+')';b.style.color='var(--on-m)'}
+    const c=el('div',{className:'dia'+(k>hoje?' fut':'')+(k===hoje?' hj':'')},[el('div',{textContent:ddmm(k)}),b,el('div',{textContent:fez?'✓ ação':' ',className:fez?'ok':''})]);
+    c.setAttribute('aria-label',ddmm(k)+(h?', humor '+h.m+' '+HUM[h.m]:', sem registro')+(fez?', ação feita':''));
+    g.append(c);
+  }
+  $('cFeito').textContent='Ação feita em '+feitos+' de '+passados+(passados===1?' dia.':' dias.');
+  const ontem=addDays(hoje,-1),feitaHoje=acao[hoje]&&acao[hoje].done,feitaOntem=acao[ontem]&&acao[ontem].done;
+  $('cAviso').classList.toggle('hide',!(dia>=2&&dia<=15&&!feitaOntem&&!feitaHoje));
+  $('cRev').classList.toggle('hide',dia<15);
+  $('cAjuda').checked=!!ciclo.ajuda;
+  const dec={papel:'Copia seus Combinados num papel e deixa na carteira ou na parede. Daqui pra frente, o app fica só pro botão Ajuda agora.',parar:'Fechado. O botão Ajuda agora continua aqui se precisar.'}[ciclo.decisao];
+  $('cDec').classList.toggle('hide',!dec);if(dec)$('cDec').textContent=dec;
+}
+$('cIni').onclick=()=>{ciclo={ini:dkey(),rodada:1};save('ciclo',ciclo);renderCiclo();toast('Começou. Revisão em '+ddmm(addDays(ciclo.ini,14)))};
+$('cMais').onclick=()=>{ciclo={ini:dkey(),rodada:(ciclo.rodada||1)+1,ajuda:ciclo.ajuda};save('ciclo',ciclo);renderCiclo();toast('Mais 15 dias')};
+$('cPapel').onclick=()=>{ciclo.decisao='papel';save('ciclo',ciclo);renderCiclo()};
+$('cParar').onclick=()=>{ciclo.decisao='parar';save('ciclo',ciclo);renderCiclo()};
+$('cAjuda').onchange=()=>{ciclo.ajuda=$('cAjuda').checked;save('ciclo',ciclo)};
+
+function renderStats(){
+  const fmt=n=>n.toFixed(1).replace('.',',');
+  const med=a=>a.length?fmt(a.reduce((s,x)=>s+x,0)/a.length):'–';
+  const fech=emo.filter(x=>x.b!=null);
+  $('sEmo').textContent=emo.length?'Momentos fortes: '+emo.length+'. Intensidade média: antes '+med(fech.map(x=>x.a))+', depois '+med(fech.map(x=>x.b))+'.':'Nenhum momento forte registrado ainda.';
+  $('sFeed').textContent=log.length?'Vontade de rolar o feed: '+log.length+' vezes, '+log.filter(x=>x.r==='ok').length+' sem abrir.':'Nenhuma vontade de rolar o feed registrada ainda.';
+  const por={};[...log,...emo].forEach(x=>{const h=new Date(x.t).getHours();por[h]=(por[h]||0)+1});
+  const top=Object.entries(por).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([h,c])=>h+'h ('+c+')').join(' · ');
+  $('sHora').textContent=top?'Horários mais difíceis: '+top:'';
+  const ev=[...log.map(x=>({t:x.t,s:x.r==='ok'?'Feed: não abriu':'Feed: abriu'})),...emo.map(x=>({t:x.t,s:(x.e||'momento forte')+': '+x.a+(x.b!=null?' → '+x.b:'')}))].sort((a,b)=>b.t-a.t).slice(0,30);
+  const ul=$('hList');ul.innerHTML='';
+  if(!ev.length){ul.append(el('li',{className:'mut',textContent:'Nada ainda.'}));return}
+  ev.forEach(x=>{const d=new Date(x.t);ul.append(el('li',{textContent:d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+hm(x.t)+' · '+x.s}))});
+}
+
+$('exp').onclick=()=>{
+  const o={};['cfg','alts','mandar','log','humor','acao','emo','ciclo','comb','amanha'].forEach(k=>o[k]=load(k,null));
+  const a=el('a',{href:URL.createObjectURL(new Blob([JSON.stringify(o,null,2)],{type:'application/json'})),download:'pausa-'+dkey()+'.json'});
+  document.body.append(a);a.click();a.remove();
+};
+$('del').onclick=()=>{
+  if(!confirm('Apagar todos os dados do Pausa neste celular? Não dá pra desfazer.'))return;
+  try{Object.keys(localStorage).filter(k=>k.startsWith('pausa_')).forEach(k=>localStorage.removeItem(k))}catch(e){}
+  location.reload();
+};
+
+/* ---------- início e virada de hora/dia ---------- */
+let diaAtual=dkey();
+function tudo(){modo();renderHumor();renderAcao();renderM();renderA();contadores();renderCiclo()}
+tudo();
+setInterval(()=>{tema();modo();if(dkey()!==diaAtual){diaAtual=dkey();tudo()}else renderAcao()},60000);
 </script>
 </body>
 </html>
