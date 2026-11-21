@@ -49,7 +49,7 @@ input,textarea{font:inherit;width:100%;padding:10px 12px;border-radius:10px;bord
 textarea{resize:vertical;min-height:84px}
 input[type=range]{padding:0;border:0;background:none;accent-color:var(--ac);height:36px}
 label{display:block;font-size:15px;color:var(--mut);margin:10px 0 4px}
-.nav{display:flex;gap:6px;margin-top:14px}.nav button{flex:1;font-size:15px;padding:10px 6px}
+.nav{display:flex;gap:6px;margin-top:14px}.nav button{flex:1 1 auto;font-size:14px;padding:10px 4px}
 .nav .on{background:var(--ac);border-color:var(--ac);color:var(--on-ac);font-weight:700}
 .row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
 .hide{display:none!important}
@@ -90,6 +90,16 @@ li{padding:8px 0;border-bottom:1px solid var(--bd);font-size:15px}
 .aviso{color:var(--warn);font-weight:600}
 details summary{cursor:pointer;color:var(--mut);padding:6px 0}
 
+/* ler */
+.nota{border-top:1px solid var(--bd)}
+.nota summary{color:var(--txt);padding:10px 0;line-height:1.35}
+.nota summary span{color:var(--mut);font-size:15px}
+.nota[open] summary{border-bottom:1px dashed var(--bd)}
+.nota p{margin:6px 0 0}
+.lab{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ac);margin-top:12px}
+.semdiv{color:var(--mut);font-size:15px;margin-top:12px}
+#lTit{font-size:24px;margin:2px 0 6px}
+
 #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--txt);color:var(--bg);padding:8px 16px;border-radius:20px;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
 #toast.on{opacity:1}
 </style>
@@ -108,6 +118,7 @@ tema();
 
   <nav class="nav">
     <button class="on" data-s="hoje">Hoje</button>
+    <button data-s="ler">Ler</button>
     <button data-s="comb">Combinados</button>
     <button data-s="ciclo">15 dias</button>
   </nav>
@@ -258,6 +269,56 @@ tema();
     </div>
   </section>
 
+  <!-- ================= LER ================= -->
+  <section id="s-ler" class="hide">
+    <div class="card">
+      <div class="mut" id="lProg"></div>
+      <div id="lAtual">
+        <h2 id="lTit"></h2>
+        <details id="lIntro"><summary>Antes de ler: quem escreveu, para quem, quando</summary><ul id="lIntroL"></ul></details>
+        <div id="lNotasBox" class="hide">
+          <div class="mut" style="margin-top:10px">Neste capítulo tem versículo que precisa de contexto:</div>
+          <div id="lNotas"></div>
+        </div>
+        <a class="btn main" id="lAbrir" target="_blank" rel="noopener" style="margin-top:12px"></a>
+        <div class="mut center" style="margin-top:4px">ou na sua Bíblia de papel</div>
+        <button class="full" id="lLi">Li</button>
+      </div>
+      <div id="lFeito" class="hide">
+        <h2 id="lFeitoTit" class="ok"></h2>
+        <label for="lFrase">Uma frase que ficou (opcional)</label>
+        <div class="row"><input id="lFrase" maxlength="140" placeholder="Copie ou resuma em poucas palavras"><button id="lFraseOk" style="flex:0 0 auto">Salvar</button></div>
+        <button class="link" id="lProx">Ler a próxima agora →</button>
+      </div>
+      <div id="lFim" class="hide">
+        <h2>Você terminou as 48 leituras.</h2>
+        <button class="full" id="lDeNovo">Recomeçar do início</button>
+      </div>
+      <p class="mut" style="margin-top:12px">Dia sem leitura não zera nada. Você continua de onde parou.</p>
+    </div>
+
+    <div class="card">
+      <h2>Versículos que todo mundo cita</h2>
+      <p class="mut">Contexto, não interpretação: quem escreveu, para quem e o que está em volta. Onde reformados e pentecostais divergem, as duas posições aparecem lado a lado.</p>
+      <div id="lTodas"></div>
+    </div>
+
+    <div class="card" id="lFrasesBox">
+      <h2>Frases que ficaram</h2>
+      <ul id="lFrases"></ul>
+    </div>
+
+    <div class="card">
+      <h2>De onde vem isso</h2>
+      <p class="mut">Os comentários foram escritos com IA a partir do que os comentários evangélicos costumam dizer, e ninguém revisou ainda. Confira nas fontes de cada lado:</p>
+      <ul>
+        <li>Reformados: Bíblia de Estudo de Genebra; Confissão de Fé de Westminster; Confissão de Fé Batista de 1689.</li>
+        <li>Pentecostais: Bíblia de Estudo Pentecostal (CPAD); Declaração de Fé das Assembleias de Deus (CPAD).</li>
+      </ul>
+      <p class="mut">E leve o que te intrigar para conversar com seu pastor.</p>
+    </div>
+  </section>
+
   <!-- ================= 15 DIAS ================= -->
   <section id="s-ciclo" class="hide">
     <div class="card" id="cNovo">
@@ -397,6 +458,7 @@ tema();
 
 <div id="toast" role="status" aria-live="polite"></div>
 
+<script src="biblia.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const mem={};
@@ -429,8 +491,9 @@ let comb=Object.assign(JSON.parse(JSON.stringify(COMB0)),load('comb',{}));
 /* ---------- navegação ---------- */
 function tela(s){
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
-  ['hoje','comb','ciclo'].forEach(x=>$('s-'+x).classList.toggle('hide',x!==s));
+  ['hoje','ler','comb','ciclo'].forEach(x=>$('s-'+x).classList.toggle('hide',x!==s));
   if(s==='ciclo')renderCiclo();
+  if(s==='ler')renderLer();
   scrollTo(0,0);
 }
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>tela(b.dataset.s));
@@ -754,7 +817,59 @@ $('del').onclick=()=>{
 
 /* ---------- início e virada de hora/dia ---------- */
 let diaAtual=dkey();
-function tudo(){modo();renderHumor();renderAcao();renderM();renderA();contadores();renderCiclo()}
+/* ---------- ler ---------- */
+const B=window.BIBLIA;
+let lei=load('leitura',{i:0,log:[],ult:null});
+let verProx=false;
+const nomeCap=([c,n])=>B.livros[c]+' '+n;
+const linkCap=(c,n)=>'https://www.bible.com/bible/'+B.versao.id+'/'+c+'.'+n+'.'+B.versao.sigla;
+function notaEl(n){
+  const corpo=el('div');
+  corpo.append(el('div',{className:'lab',textContent:'Contexto'}));
+  n.contexto.forEach(t=>corpo.append(el('p',{textContent:t})));
+  if(n.div){
+    [['Reformados',n.div.ref],['Pentecostais',n.div.pent],['Onde concordam',n.div.conc]].forEach(([l,t])=>{corpo.append(el('div',{className:'lab',textContent:l}),el('p',{textContent:t}))});
+  }else corpo.append(el('p',{className:'semdiv',textContent:'Aqui não há divergência relevante entre reformados e pentecostais.'}));
+  corpo.append(el('a',{className:'btn',href:linkCap(n.cod,n.cap),target:'_blank',rel:'noopener',textContent:'Ler '+B.livros[n.cod]+' '+n.cap+' inteiro'}));
+  const sm=el('summary',{},[el('b',{textContent:n.ref}),document.createTextNode(' · '),el('span',{textContent:n.frase})]);
+  return el('details',{className:'nota'},[sm,corpo]);
+}
+function renderLer(){
+  if(!B){$('lProg').textContent='O conteúdo não carregou. Recarregue a página.';return}
+  const tot=B.plano.length,hoje=dkey();
+  const feitoHoje=lei.ult&&lei.ult.d===hoje&&!verProx;
+  const fim=lei.i>=tot;
+  $('lAtual').classList.toggle('hide',feitoHoje||fim);
+  $('lFeito').classList.toggle('hide',!feitoHoje);
+  $('lFim').classList.toggle('hide',!(fim&&!feitoHoje));
+  $('lProg').textContent='Leitura '+Math.min(lei.i+1,tot)+' de '+tot+' · uns 5 minutos';
+  if(feitoHoje){
+    $('lFeitoTit').textContent='✓ '+nomeCap(B.plano[lei.ult.i])+': lido hoje';
+    $('lProg').textContent='Leituras feitas: '+lei.log.length;
+    $('lProx').classList.toggle('hide',fim);
+  }
+  if(!feitoHoje&&!fim){
+    const [c,n]=B.plano[lei.i],ant=B.plano[lei.i-1];
+    $('lTit').textContent=nomeCap(B.plano[lei.i]);
+    const ul=$('lIntroL');ul.innerHTML='';(B.intros[c]||[]).forEach(t=>ul.append(el('li',{textContent:t})));
+    $('lIntro').open=!ant||ant[0]!==c;
+    const ns=B.notas.filter(x=>x.cod===c&&x.cap===n);
+    $('lNotas').innerHTML='';ns.forEach(x=>$('lNotas').append(notaEl(x)));
+    $('lNotasBox').classList.toggle('hide',!ns.length);
+    $('lAbrir').href=linkCap(c,n);$('lAbrir').textContent='Abrir '+nomeCap(B.plano[lei.i])+' ('+B.versao.sigla+')';
+  }
+  if(!$('lTodas').children.length)B.notas.forEach(x=>$('lTodas').append(notaEl(x)));
+  const fr=lei.log.filter(x=>x.frase).slice(-10).reverse();
+  $('lFrasesBox').classList.toggle('hide',!fr.length);
+  $('lFrases').innerHTML='';fr.forEach(x=>$('lFrases').append(el('li',{},[el('b',{textContent:nomeCap(B.plano[x.i])+': '}),document.createTextNode(x.frase)])));
+}
+$('lLi').onclick=()=>{lei.log.push({i:lei.i,t:Date.now(),frase:''});lei.ult={i:lei.i,d:dkey()};lei.i++;verProx=false;save('leitura',lei);$('lFrase').value='';renderLer();scrollTo(0,0)};
+$('lFraseOk').onclick=()=>{const v=$('lFrase').value.trim();const x=lei.log[lei.log.length-1];if(!v||!x)return;x.frase=v;save('leitura',lei);$('lFrase').value='';toast('Guardado');renderLer()};
+$('lFrase').onkeydown=e=>{if(e.key==='Enter')$('lFraseOk').click()};
+$('lProx').onclick=()=>{verProx=true;renderLer();scrollTo(0,0)};
+$('lDeNovo').onclick=()=>{lei.i=0;lei.ult=null;save('leitura',lei);renderLer()};
+
+function tudo(){modo();renderHumor();renderAcao();renderM();renderA();contadores();renderCiclo();renderLer()}
 tudo();
 setInterval(()=>{tema();modo();if(dkey()!==diaAtual){diaAtual=dkey();tudo()}else renderAcao()},60000);
 </script>
