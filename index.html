@@ -275,6 +275,8 @@ tema();
       <div class="mut" id="lProg"></div>
       <div id="lAtual">
         <h2 id="lTit"></h2>
+        <div id="lRepareBox" class="hide"><div class="lab" style="margin-top:4px">Repare</div><p id="lRepare" style="margin:4px 0 0"></p></div>
+        <div id="lTermosBox" class="hide"><div class="mut" style="margin-top:10px">Termos deste capítulo:</div><div class="chips" id="lTermos"></div></div>
         <details id="lIntro"><summary>Antes de ler: quem escreveu, para quem, quando</summary><ul id="lIntroL"></ul></details>
         <div id="lNotasBox" class="hide">
           <div class="mut" style="margin-top:10px">Neste capítulo tem versículo que precisa de contexto:</div>
@@ -283,6 +285,7 @@ tema();
         <a class="btn main" id="lAbrir" target="_blank" rel="noopener" style="margin-top:12px"></a>
         <div class="mut center" style="margin-top:4px">ou na sua Bíblia de papel</div>
         <button class="full" id="lLi">Li</button>
+        <button class="link" id="lDuvLink">Fiquei com uma dúvida neste capítulo</button>
       </div>
       <div id="lFeito" class="hide">
         <h2 id="lFeitoTit" class="ok"></h2>
@@ -297,10 +300,26 @@ tema();
       <p class="mut" style="margin-top:12px">Dia sem leitura não zera nada. Você continua de onde parou.</p>
     </div>
 
+    <div class="card" id="lDuvCard">
+      <h2>Dúvidas pra levar</h2>
+      <p class="mut">Anote na hora o versículo e o que ficou estranho. Depois leve para o seu pastor ou cole numa conversa comigo: eu escrevo a nota de contexto e coloco no app.</p>
+      <input id="lDuvRef" maxlength="40" placeholder="Ex.: Marcos 2:27" style="margin-top:6px">
+      <textarea id="lDuvTxt" maxlength="240" rows="2" placeholder="O que ficou estranho?" style="margin-top:8px;min-height:60px"></textarea>
+      <button class="full" id="lDuvAdd">Anotar</button>
+      <ul id="lDuvList" class="lst"></ul>
+      <button class="full hide" id="lDuvCopiar">Copiar todas</button>
+    </div>
+
     <div class="card">
       <h2>Versículos que todo mundo cita</h2>
       <p class="mut">Contexto, não interpretação: quem escreveu, para quem e o que está em volta. Onde reformados e pentecostais divergem, as duas posições aparecem lado a lado.</p>
       <div id="lTodas"></div>
+    </div>
+
+    <div class="card">
+      <h2>Termos</h2>
+      <p class="mut">Palavras que aparecem o tempo todo e mudam a leitura quando você sabe o que significavam na época.</p>
+      <div id="lGloss"></div>
     </div>
 
     <div class="card" id="lFrasesBox">
@@ -459,6 +478,7 @@ tema();
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script src="biblia.js"></script>
+<script src="biblia-extra.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const mem={};
@@ -823,13 +843,22 @@ let lei=load('leitura',{i:0,log:[],ult:null});
 let verProx=false;
 const nomeCap=([c,n])=>B.livros[c]+' '+n;
 const linkCap=(c,n)=>'https://www.bible.com/bible/'+B.versao.id+'/'+c+'.'+n+'.'+B.versao.sigla;
+function divEl(corpo,div){
+  if(div)[['Reformados',div.ref],['Pentecostais',div.pent],['Onde concordam',div.conc]].forEach(([l,t])=>{corpo.append(el('div',{className:'lab',textContent:l}),el('p',{textContent:t}))});
+  else corpo.append(el('p',{className:'semdiv',textContent:'Aqui não há divergência relevante entre reformados e pentecostais.'}));
+}
+function termoEl(x,i){
+  const corpo=el('div');corpo.append(el('p',{textContent:x.txt}));
+  if(x.div)divEl(corpo,x.div);
+  const d=el('details',{className:'nota',id:'termo-'+i},[el('summary',{},[el('b',{textContent:x.t})]),corpo]);
+  return d;
+}
+function abrirTermo(i){const d=$('termo-'+i);if(!d)return;d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'})}
 function notaEl(n){
   const corpo=el('div');
   corpo.append(el('div',{className:'lab',textContent:'Contexto'}));
   n.contexto.forEach(t=>corpo.append(el('p',{textContent:t})));
-  if(n.div){
-    [['Reformados',n.div.ref],['Pentecostais',n.div.pent],['Onde concordam',n.div.conc]].forEach(([l,t])=>{corpo.append(el('div',{className:'lab',textContent:l}),el('p',{textContent:t}))});
-  }else corpo.append(el('p',{className:'semdiv',textContent:'Aqui não há divergência relevante entre reformados e pentecostais.'}));
+  divEl(corpo,n.div);
   corpo.append(el('a',{className:'btn',href:linkCap(n.cod,n.cap),target:'_blank',rel:'noopener',textContent:'Ler '+B.livros[n.cod]+' '+n.cap+' inteiro'}));
   const sm=el('summary',{},[el('b',{textContent:n.ref}),document.createTextNode(' · '),el('span',{textContent:n.frase})]);
   return el('details',{className:'nota'},[sm,corpo]);
@@ -851,6 +880,11 @@ function renderLer(){
   if(!feitoHoje&&!fim){
     const [c,n]=B.plano[lei.i],ant=B.plano[lei.i-1];
     $('lTit').textContent=nomeCap(B.plano[lei.i]);
+    const rep=B.caps&&B.caps[c+'.'+n];
+    $('lRepareBox').classList.toggle('hide',!rep);if(rep)$('lRepare').textContent=rep;
+    const tl=$('lTermos');tl.innerHTML='';
+    (B.termos||[]).forEach((x,i)=>{if(x.caps.includes(c+'.'+n)){const b=el('button',{type:'button',textContent:x.t});b.onclick=()=>abrirTermo(i);tl.append(b)}});
+    $('lTermosBox').classList.toggle('hide',!tl.children.length);
     const ul=$('lIntroL');ul.innerHTML='';(B.intros[c]||[]).forEach(t=>ul.append(el('li',{textContent:t})));
     $('lIntro').open=!ant||ant[0]!==c;
     const ns=B.notas.filter(x=>x.cod===c&&x.cap===n);
@@ -859,6 +893,8 @@ function renderLer(){
     $('lAbrir').href=linkCap(c,n);$('lAbrir').textContent='Abrir '+nomeCap(B.plano[lei.i])+' ('+B.versao.sigla+')';
   }
   if(!$('lTodas').children.length)B.notas.forEach(x=>$('lTodas').append(notaEl(x)));
+  if(!$('lGloss').children.length)(B.termos||[]).forEach((x,i)=>$('lGloss').append(termoEl(x,i)));
+  renderDuv();
   const fr=lei.log.filter(x=>x.frase).slice(-10).reverse();
   $('lFrasesBox').classList.toggle('hide',!fr.length);
   $('lFrases').innerHTML='';fr.forEach(x=>$('lFrases').append(el('li',{},[el('b',{textContent:nomeCap(B.plano[x.i])+': '}),document.createTextNode(x.frase)])));
@@ -868,6 +904,36 @@ $('lFraseOk').onclick=()=>{const v=$('lFrase').value.trim();const x=lei.log[lei.
 $('lFrase').onkeydown=e=>{if(e.key==='Enter')$('lFraseOk').click()};
 $('lProx').onclick=()=>{verProx=true;renderLer();scrollTo(0,0)};
 $('lDeNovo').onclick=()=>{lei.i=0;lei.ult=null;save('leitura',lei);renderLer()};
+
+/* dúvidas pra levar */
+let duv=load('duvidas',[]);
+const duvTexto=()=>duv.map(x=>x.ref+(x.txt?': '+x.txt:'')).join('\n');
+function renderDuv(){
+  const ul=$('lDuvList');ul.innerHTML='';
+  duv.forEach((x,i)=>{
+    const b=el('button',{textContent:'Resolvida'});b.setAttribute('aria-label','Marcar como resolvida');
+    b.onclick=()=>{duv.splice(i,1);save('duvidas',duv);renderDuv()};
+    ul.append(el('li',{},[el('span',{},[el('b',{textContent:x.ref}),document.createTextNode(x.txt?' · '+x.txt:'')]),b]));
+  });
+  $('lDuvCopiar').classList.toggle('hide',!duv.length);
+}
+$('lDuvAdd').onclick=()=>{
+  const r=$('lDuvRef').value.trim(),t=$('lDuvTxt').value.trim();
+  if(!r&&!t){$('lDuvRef').focus();return}
+  duv.push({ref:r||'Sem referência',txt:t,t:Date.now()});save('duvidas',duv);
+  $('lDuvRef').value='';$('lDuvTxt').value='';renderDuv();toast('Anotada');
+};
+$('lDuvLink').onclick=()=>{
+  const p=B.plano[Math.min(lei.i,B.plano.length-1)];
+  $('lDuvRef').value=nomeCap(p)+':';
+  $('lDuvCard').scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>{const f=$('lDuvRef');f.focus();f.setSelectionRange(f.value.length,f.value.length)},400);
+};
+$('lDuvCopiar').onclick=async()=>{
+  const txt='Minhas dúvidas da leitura bíblica:\n'+duvTexto();
+  try{await navigator.clipboard.writeText(txt);toast('Copiado')}
+  catch(e){const ta=el('textarea',{value:txt});document.body.append(ta);ta.select();try{document.execCommand('copy');toast('Copiado')}catch(_){toast('Não deu pra copiar')}ta.remove()}
+};
 
 function tudo(){modo();renderHumor();renderAcao();renderM();renderA();contadores();renderCiclo();renderLer()}
 tudo();
