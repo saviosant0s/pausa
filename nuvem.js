@@ -6,7 +6,10 @@
 (function () {
   // Preencha com os dados do seu projeto (Project URL e a chave publishable/anon).
   // A chave anon/publishable é pública por natureza: a proteção vem do login e do RLS no banco.
-  const CFG = window.PAUSA_NUVEM || { url: '', chave: '' };
+  const CFG = window.PAUSA_NUVEM || {
+    url: 'https://pwrficohuzdtrazppjfd.supabase.co',
+    chave: 'sb_publishable_bgQR8dQ7gXNQkgiJZOMvUQ_uI6RdQqI'
+  };
 
   const CHAVES = window.PAUSA_CHAVES || [];
   const LS = window.localStorage;
@@ -53,7 +56,8 @@
       [/signups? not allowed|signup.*disabled/i, 'A criação de contas está desligada no projeto.'],
       [/rate limit|too many/i, 'Muitas tentativas. Espera um pouco.'],
       [/invalid.*email|email.*invalid|unable to validate email/i, 'E-mail inválido.'],
-      [/could not find the function|pausa_sync/i, 'O banco ainda não foi preparado. Rode o supabase.sql no projeto.']
+      [/could not find the function|pausa_sync/i, 'O banco ainda não foi preparado. Rode o supabase.sql no projeto.'],
+      [/permission denied/i, 'O banco está sem permissão para a sua conta. Rode o supabase.sql atualizado no projeto.']
     ];
     for (const [re, t] of mapa) if (re.test(m)) return t;
     return m;

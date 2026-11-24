@@ -9,6 +9,11 @@ create table if not exists public.pausa_dados (
   atualizado_em timestamptz not null default now()
 );
 
+-- Permissão para quem está logado usar a tabela (projetos novos podem vir sem isso).
+-- O RLS logo abaixo garante que cada conta só enxerga e altera a própria linha.
+grant usage on schema public to authenticated;
+grant select, insert, update on public.pausa_dados to authenticated;
+
 -- Cada conta só enxerga e altera a própria linha.
 alter table public.pausa_dados enable row level security;
 
