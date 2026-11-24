@@ -49,7 +49,7 @@ input,textarea{font:inherit;width:100%;padding:10px 12px;border-radius:10px;bord
 textarea{resize:vertical;min-height:84px}
 input[type=range]{padding:0;border:0;background:none;accent-color:var(--ac);height:36px}
 label{display:block;font-size:15px;color:var(--mut);margin:10px 0 4px}
-.nav{display:flex;gap:6px;margin-top:14px}.nav button{flex:1 1 auto;font-size:14px;padding:10px 4px}
+.nav{display:flex;gap:6px;margin-top:14px}.nav button{flex:1 1 auto;font-size:13px;padding:10px 2px}
 .nav .on{background:var(--ac);border-color:var(--ac);color:var(--on-ac);font-weight:700}
 .row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
 .hide{display:none!important}
@@ -88,6 +88,22 @@ li{padding:8px 0;border-bottom:1px solid var(--bd);font-size:15px}
 .dia.fut{opacity:.45}.dia.hj{border-color:var(--txt)}
 .ok{color:var(--ok);font-weight:700}
 .aviso{color:var(--warn);font-weight:600}
+
+/* lastro */
+select{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--bd-ui);background:var(--input);color:var(--txt);min-height:44px}
+.alvo{min-height:44px}
+#zLastList li button{min-height:44px;min-width:44px}
+.degrau{border:1px solid var(--bd);border-radius:12px;padding:10px 12px;margin-top:8px}
+.degrau p{margin:4px 0 0}
+.degrau.atual{border:2px solid var(--ac)}
+.degrau.fut{opacity:.5}
+.bloco{display:block;padding:10px 0}
+.bloco .topo{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.bloco .row{margin-top:8px}.bloco .row>*{flex:1 1 0;min-width:0}
+.stat{flex:1;text-align:center;border:1px solid var(--bd);border-radius:12px;padding:8px 4px}
+.stat b{display:block;font-size:28px;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--mut)}
+@media (prefers-reduced-motion:reduce){#s-lastro *{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 details summary{cursor:pointer;color:var(--mut);padding:6px 0}
 
 /* ler */
@@ -121,6 +137,7 @@ tema();
     <button data-s="ler">Ler</button>
     <button data-s="comb">Combinados</button>
     <button data-s="ciclo">15 dias</button>
+    <button data-s="lastro">Lastro</button>
   </nav>
 
   <!-- ================= HOJE ================= -->
@@ -172,6 +189,7 @@ tema();
       <button class="full" id="vontade">Bateu vontade de rolar o feed</button>
       <button class="link" id="bPerfil">É o perfil dela ou conversa antiga →</button>
       <div class="mut">Hoje: <b id="hoje">0</b> vontades · <b id="venc">0</b> sem abrir · <b id="emoHoje">0</b> momentos fortes</div>
+      <button class="link alvo" id="bLastro">Antes de mandar mensagem →</button>
     </div>
 
     <div class="card hide" id="pausa">
@@ -381,6 +399,93 @@ tema();
       <div class="row"><button id="exp">Exportar</button><button id="del">Apagar tudo</button></div>
     </div>
   </section>
+
+  <!-- ================= LASTRO ================= -->
+  <section id="s-lastro" class="hide">
+    <div class="card">
+      <p class="sug" id="zFrase" aria-live="polite" style="margin-top:0"></p>
+      <button class="full" id="zOutra">Outra frase</button>
+    </div>
+
+    <div class="card">
+      <h2>Antes de mandar</h2>
+      <p>Por que você vai mandar?</p>
+      <div class="row" id="zMotivo"><button id="zDizer">Tenho algo a dizer</button><button id="zDesc">É desconforto</button></div>
+      <div id="zDespBox" class="hide">
+        <label for="zDesp">Despeja aqui, não no chat</label>
+        <textarea id="zDesp" maxlength="400" rows="4"></textarea>
+        <div class="big center" id="zDespT" aria-live="off">30:00</div>
+        <p class="mut center" id="zDespMsg">Espera. Na metade das vezes a vontade passa.</p>
+        <div id="zDespFim" class="hide">
+          <p>Passaram 30 minutos.</p>
+          <div class="row"><button id="zNao">Não mandei</button><button id="zMandei">Mandei mesmo assim</button></div>
+        </div>
+      </div>
+      <p class="mut" style="margin-top:12px">Se ela mandou 10 palavras, mande 15. Não 60.</p>
+    </div>
+
+    <div class="card">
+      <h2>Provas</h2>
+      <p class="sug" id="zProvCont"></p>
+      <button class="full" id="zProvNova">Ela demorou / ela sumiu</button>
+      <div id="zProvForm" class="hide">
+        <label for="zProvInt">Intensidade agora: <b id="zProvIntV">5</b> de 10</label>
+        <input type="range" id="zProvInt" min="0" max="10" value="5">
+        <label for="zProvHist">A história que eu contei</label>
+        <textarea id="zProvHist" maxlength="300" rows="2"></textarea>
+        <label for="zProvReal">O que aconteceu de verdade</label>
+        <textarea id="zProvReal" maxlength="300" rows="2" placeholder="Se ainda não sabe, deixa em branco e completa depois"></textarea>
+        <div class="mut" style="margin-top:10px">Comparado com a história:</div>
+        <div class="chips" id="zProvDesf"></div>
+        <button class="main" id="zProvFechar" style="margin-top:12px">Fechar registro</button>
+      </div>
+      <div id="zProvLista"></div>
+    </div>
+
+    <div class="card">
+      <h2>Escada</h2>
+      <p class="mut">Um degrau por vez. Não sobe dois no mesmo dia.</p>
+      <div id="zEscada"></div>
+    </div>
+
+    <div class="card">
+      <h2>Meu lastro</h2>
+      <p class="mut">Coisas suas que ela não sabe que existem.</p>
+      <p class="sug" id="zLastCont"></p>
+      <p class="aviso hide" id="zLastAviso">Metade da semana e nenhum ainda. Escolhe um pra hoje.</p>
+      <div class="row"><input id="zLastIn" maxlength="80" placeholder="Ex.: aprender um acorde novo"><button id="zLastAdd" aria-label="Adicionar ao lastro" style="flex:0 0 auto">+</button></div>
+      <ul id="zLastList" class="lst"></ul>
+      <p class="mut" style="margin-top:12px">Não faz pra contar pra ela. Faz pra ter.</p>
+    </div>
+
+    <div class="card">
+      <h2>Blocos de hoje</h2>
+      <div id="zBAtivo" class="box hide">
+        <div class="mut" id="zBANome"></div>
+        <div class="big center" id="zBAT" aria-live="off"></div>
+        <p class="center">Celular longe. Volta quando acabar.</p>
+        <button class="link alvo" id="zBAParar">Parar antes</button>
+      </div>
+      <div class="row"><input id="zBNome" maxlength="40" placeholder="Ex.: treino" aria-label="Nome do bloco"><input type="time" id="zBHora" aria-label="Horário do bloco" style="flex:0 0 116px"></div>
+      <button class="full" id="zBAdd">Adicionar</button>
+      <ul id="zBList"></ul>
+    </div>
+
+    <div class="card hide" id="zRev">
+      <h2>Revisão da semana</h2>
+      <div class="row" style="margin-top:10px">
+        <div class="stat"><b id="zRevB">0</b><span>blocos cumpridos</span></div>
+        <div class="stat"><b id="zRevL">0</b><span>lastros marcados</span></div>
+        <div class="stat"><b id="zRevS">0</b><span>silêncios atravessados</span></div>
+      </div>
+      <label for="zRevA">O que você deixou de fazer por causa dela?</label>
+      <textarea id="zRevA" data-r="a" maxlength="400" rows="2"></textarea>
+      <label for="zRevBq">Qual silêncio você atravessou sem intervenção?</label>
+      <textarea id="zRevBq" data-r="b" maxlength="400" rows="2"></textarea>
+      <label for="zRevC">O que fica de diferente na semana que vem?</label>
+      <textarea id="zRevC" data-r="c" maxlength="400" rows="2"></textarea>
+    </div>
+  </section>
 </div>
 
 <!-- ================= MOMENTO FORTE ================= -->
@@ -511,9 +616,10 @@ let comb=Object.assign(JSON.parse(JSON.stringify(COMB0)),load('comb',{}));
 /* ---------- navegação ---------- */
 function tela(s){
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
-  ['hoje','ler','comb','ciclo'].forEach(x=>$('s-'+x).classList.toggle('hide',x!==s));
+  ['hoje','ler','comb','ciclo','lastro'].forEach(x=>$('s-'+x).classList.toggle('hide',x!==s));
   if(s==='ciclo')renderCiclo();
   if(s==='ler')renderLer();
+  if(s==='lastro')renderLastro();
   scrollTo(0,0);
 }
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>tela(b.dataset.s));
@@ -825,7 +931,7 @@ function renderStats(){
 }
 
 $('exp').onclick=()=>{
-  const o={};['cfg','alts','mandar','log','humor','acao','emo','ciclo','comb','amanha'].forEach(k=>o[k]=load(k,null));
+  const o={};['cfg','alts','mandar','log','humor','acao','emo','ciclo','comb','amanha','leitura','duvidas','despejo','tricagem','provas','nivel','lastro','blocos','revisao'].forEach(k=>o[k]=load(k,null));
   const a=el('a',{href:URL.createObjectURL(new Blob([JSON.stringify(o,null,2)],{type:'application/json'})),download:'pausa-'+dkey()+'.json'});
   document.body.append(a);a.click();a.remove();
 };
@@ -935,7 +1041,238 @@ $('lDuvCopiar').onclick=async()=>{
   catch(e){const ta=el('textarea',{value:txt});document.body.append(ta);ta.select();try{document.execCommand('copy');toast('Copiado')}catch(_){toast('Não deu pra copiar')}ta.remove()}
 };
 
-function tudo(){modo();renderHumor();renderAcao();renderM();renderA();contadores();renderCiclo();renderLer()}
+/* ================= LASTRO ================= */
+const FRASES=[
+  'Você não está dando atenção. Está pagando seguro.',
+  'Silêncio é estímulo ambíguo. O cérebro ansioso preenche com a pior história.',
+  'A explicação chata quase sempre ganha: dormiu, trabalhou, sem bateria.',
+  'Sentir ansiedade não é informação. É abstinência.',
+  'Uma manhã seca é ruído. Dois dias de frieza é sinal.',
+  'Compromisso com hora marcada não se cancela por conversa sem hora marcada.',
+  'Avisa, não pede licença.',
+  'Ela manda 10 palavras, você manda 15.',
+  'O objetivo não é menos intensidade. É ser leve onde ela está sem energia.',
+  'Cada silêncio atravessado é um tijolo. Você precisa de histórico de "sumiu e voltou".',
+  'Quem tem vida não precisa provar que se importa.',
+  'Se você cancelar tudo, fica sem assunto. Sem assunto, a conversa vira sobre a conversa.',
+  'Antes de mandar: isso é pra ela ou é pra aliviar você?',
+  'Espera 30 minutos. Na metade das vezes você não manda mais.',
+  'O medo é gigante porque é antigo, não porque ela é especial.',
+  'Não conta o plano pra ela. Só aparece diferente.',
+  'Não empilha "tô aqui por você". Repetir vira cobrança disfarçada de cuidado.',
+  'Nada de áudio em dia de doença, cansaço ou briga.',
+  'Você não precisa resolver o silêncio dela. Precisa atravessar o seu.',
+  'Você não tem nada a perder que já não tivesse perdido por anos.',
+  'Resposta curta não é rejeição. Às vezes é só um dia cheio.',
+  'Ela tem um dia inteiro que você não vê. Isso é normal.',
+  'Checar o perfil não traz notícia. Traz mais vontade de checar.',
+  'A ansiedade pede certeza agora. Confiança se constrói no tempo.',
+  'Mensagem mandada pra aliviar vira mais uma espera por resposta.',
+  'Você já atravessou silêncios piores do que este.'
+];
+let fraseUlt=-1;
+function novaFrase(){let k;do{k=Math.floor(Math.random()*FRASES.length)}while(FRASES.length>1&&k===fraseUlt);fraseUlt=k;$('zFrase').textContent=FRASES[k]}
+$('zOutra').onclick=novaFrase;
+$('bLastro').onclick=()=>tela('lastro');
+
+const segunda=(k=dkey())=>{const[y,m,d]=k.split('-').map(Number);const dow=(new Date(y,m-1,d).getDay()+6)%7;return dkey(new Date(y,m-1,d-dow))};
+const naSemana=k=>{const s=segunda();return k>=s&&k<=addDays(s,6)};
+const relogioTxt=ms=>{const r=Math.max(0,Math.ceil(ms/1000)),h=Math.floor(r/3600),m=Math.floor(r%3600/60),s=r%60;return(h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s).padStart(2,'0')};
+const vibrar=()=>{if(navigator.vibrate)navigator.vibrate(200)};
+const lastroVisivel=()=>!$('s-lastro').classList.contains('hide');
+async function copiar(txt){
+  try{await navigator.clipboard.writeText(txt);toast('Copiado');return}catch(e){}
+  const ta=el('textarea',{value:txt});ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';
+  document.body.append(ta);ta.select();let ok=false;try{ok=document.execCommand('copy')}catch(_){}ta.remove();
+  toast(ok?'Copiado':'Não deu pra copiar');
+}
+function grupo(box,opcoes,atual,aoEscolher){
+  box.innerHTML='';
+  opcoes.forEach(([v,t])=>{const b=el('button',{type:'button',textContent:t});b.setAttribute('aria-pressed',String(v===atual));b.onclick=()=>aoEscolher(v===atual?'':v);box.append(b)});
+}
+
+/* 2. antes de mandar */
+let despejo=load('despejo','');
+let tricagem=load('tricagem',[]);
+let triVibrou=null,dT;
+const triAberta=()=>{const x=tricagem[tricagem.length-1];return x&&x.escolha==='desconforto'&&!x.resultado?x:null};
+function renderTri(){
+  const a=triAberta();
+  $('zMotivo').classList.toggle('hide',!!a);$('zDespBox').classList.toggle('hide',!a);
+  if(document.activeElement!==$('zDesp'))$('zDesp').value=despejo;
+  if(!a)return;
+  const r=a.fim-Date.now(),acabou=r<=0;
+  $('zDespT').textContent=relogioTxt(r);
+  $('zDespT').classList.toggle('hide',acabou);$('zDespMsg').classList.toggle('hide',acabou);$('zDespFim').classList.toggle('hide',!acabou);
+}
+$('zDizer').onclick=()=>{tricagem.push({t:Date.now(),d:dkey(),escolha:'dizer'});tricagem=tricagem.slice(-500);save('tricagem',tricagem);toast('Manda')};
+$('zDesc').onclick=()=>{tricagem.push({t:Date.now(),d:dkey(),escolha:'desconforto',fim:Date.now()+30*60000,resultado:null});tricagem=tricagem.slice(-500);save('tricagem',tricagem);renderTri();$('zDesp').focus()};
+$('zDesp').addEventListener('input',()=>{despejo=$('zDesp').value;clearTimeout(dT);dT=setTimeout(()=>save('despejo',despejo),400)});
+function fecharTri(r){const a=triAberta();if(!a)return;a.resultado=r;a.fechado=Date.now();save('tricagem',tricagem);renderTri();toast('Registrado')}
+$('zNao').onclick=()=>fecharTri('nao mandei');$('zMandei').onclick=()=>fecharTri('mandei');
+
+/* 3. provas */
+const DESF=[['melhor','Melhor que a história'],['igual','Igual à história'],['pior','Pior que a história']];
+let provas=load('provas',[]);
+let provDesf='';
+const resumo=(s,n)=>{s=(s||'').trim();return s.length>n?s.slice(0,n-1)+'…':s};
+function renderProvas(){
+  const m=provas.filter(x=>(x.real||'').trim()&&x.desf==='pior').length;
+  $('zProvCont').textContent='Silêncios atravessados: '+provas.length+' · Catástrofes confirmadas: '+m;
+  grupo($('zProvDesf'),DESF,provDesf,v=>{provDesf=v;renderProvas()});
+  const box=$('zProvLista');box.innerHTML='';
+  provas.slice(-10).reverse().forEach(x=>{
+    const corpo=el('div');
+    corpo.append(el('div',{className:'lab',textContent:'A história que eu contei'}),el('p',{textContent:x.hist||'Não escrevi.'}));
+    corpo.append(el('div',{className:'lab',textContent:'O que aconteceu de verdade'}));
+    if((x.real||'').trim()){
+      corpo.append(el('p',{textContent:x.real}));
+      const dl=DESF.find(d=>d[0]===x.desf);if(dl)corpo.append(el('p',{className:'mut',textContent:dl[1]}));
+    }else{
+      let dv=x.desf||'';
+      const ta=el('textarea',{maxLength:300,rows:2,placeholder:'Agora que você sabe, o que foi?'});ta.setAttribute('aria-label','O que aconteceu de verdade');
+      const ch=el('div',{className:'chips'});const pinta=()=>grupo(ch,DESF,dv,v=>{dv=v;pinta()});pinta();
+      const b=el('button',{className:'full',textContent:'Completar registro'});
+      b.onclick=()=>{if(!ta.value.trim()){ta.focus();return}x.real=ta.value.trim();x.desf=dv;save('provas',provas);renderProvas();renderRevisao();toast('Registrado')};
+      corpo.append(ta,ch,b);
+    }
+    const sm=el('summary',{},[el('b',{textContent:ddmm(x.d)}),document.createTextNode(' · intensidade '+x.int+(x.hist?' · ':'')),el('span',{textContent:resumo(x.hist,40)})]);
+    box.append(el('details',{className:'nota'},[sm,corpo]));
+  });
+}
+$('zProvInt').oninput=()=>{$('zProvIntV').textContent=$('zProvInt').value};
+$('zProvNova').onclick=()=>{const f=$('zProvForm');f.classList.toggle('hide');if(!f.classList.contains('hide'))$('zProvHist').focus()};
+$('zProvFechar').onclick=()=>{
+  provas.push({t:Date.now(),d:dkey(),int:+$('zProvInt').value,hist:$('zProvHist').value.trim(),real:$('zProvReal').value.trim(),desf:provDesf});
+  provas=provas.slice(-500);save('provas',provas);
+  $('zProvHist').value='';$('zProvReal').value='';$('zProvInt').value=5;$('zProvIntV').textContent='5';provDesf='';
+  $('zProvForm').classList.add('hide');renderProvas();renderRevisao();toast('Registrado');
+};
+
+/* 4. escada */
+const DEGRAUS=[
+  ['Uma hora sem olhar o celular, com o celular em outro cômodo.','Como sei que passei: ela respondeu normalmente e nada quebrou.'],
+  ['Um bloco inteiro de compromisso sem checar.','Como sei que passei: o bloco acabou e só então eu olhei.'],
+  ['Mandar uma mensagem e não reabrir o chat por 30 minutos.','Como sei que passei: a notificação chegou e eu esperei o tempo inteiro.'],
+  ['Um dia em que ela está bem e você não puxa assunto: só responde.','Como sei que passei: o dia acabou e a conversa existiu sem eu empurrar.']
+];
+let nivel=Math.max(0,Math.min(4,+load('nivel',0)||0));
+function renderEscada(){
+  const box=$('zEscada');box.innerHTML='';
+  const passei=el('button',{className:'main',textContent:'Passei'});passei.onclick=()=>{nivel=Math.min(4,nivel+1);save('nivel',nivel);renderEscada();toast('Degrau '+nivel+' feito')};
+  const voltei=el('button',{textContent:'Voltei um degrau'});voltei.onclick=()=>{nivel=Math.max(0,nivel-1);save('nivel',nivel);renderEscada()};
+  DEGRAUS.forEach(([t,c],i)=>{
+    const st=i<nivel?'feito':i===nivel?'atual':'fut';
+    const d=el('div',{className:'degrau '+st},[el('div',{className:'lab',textContent:(i<nivel?'✓ ':'')+'Degrau '+(i+1)}),el('p',{textContent:t}),el('p',{className:'mut',textContent:c})]);
+    if(st==='atual'){d.setAttribute('aria-current','step');const r=el('div',{className:'row',style:'margin-top:10px'},[passei]);if(nivel>0)r.append(voltei);d.append(r)}
+    box.append(d);
+  });
+  if(nivel>=4){
+    const fim=el('div',{className:'degrau atual'},[el('p',{textContent:'Os quatro degraus estão feitos. Se a ansiedade voltar a mandar, volte um degrau.'})]);
+    fim.append(el('div',{className:'row',style:'margin-top:10px'},[voltei]));box.append(fim);
+  }
+}
+
+/* 5. meu lastro */
+let lastro=Object.assign({itens:[],log:[]},load('lastro',{}));
+const feitoSemana=it=>!!it.feito&&naSemana(it.feito);
+function renderMeuLastro(){
+  const n=lastro.log.filter(l=>naSemana(l.d)).length,dow=(new Date().getDay()+6)%7;
+  $('zLastCont').textContent=n+' de 2 nesta semana';
+  $('zLastCont').classList.toggle('ok',n>=2);
+  $('zLastAviso').classList.toggle('hide',!(n===0&&dow>=3));
+  const ul=$('zLastList');ul.innerHTML='';
+  lastro.itens.forEach((it,i)=>{
+    const f=feitoSemana(it);
+    const bf=el('button',{textContent:f?'✓ Feito':'Feito'});bf.setAttribute('aria-pressed',String(f));
+    bf.onclick=()=>{
+      if(feitoSemana(it)){it.feito='';const j=lastro.log.map(l=>l.id===it.id&&naSemana(l.d)).lastIndexOf(true);if(j>=0)lastro.log.splice(j,1)}
+      else{it.feito=dkey();lastro.log.push({id:it.id,d:dkey()});lastro.log=lastro.log.slice(-400)}
+      save('lastro',lastro);renderMeuLastro();renderRevisao();
+    };
+    const bx=el('button',{textContent:'×'});bx.setAttribute('aria-label','Remover '+it.txt);
+    bx.onclick=()=>{lastro.itens.splice(i,1);save('lastro',lastro);renderMeuLastro()};
+    ul.append(el('li',{},[el('span',{textContent:it.txt}),el('span',{className:'row',style:'flex:0 0 auto;flex-wrap:nowrap'},[bf,bx])]));
+  });
+}
+$('zLastAdd').onclick=()=>{const v=$('zLastIn').value.trim();if(!v){$('zLastIn').focus();return}lastro.itens.push({id:Date.now(),txt:v,feito:''});save('lastro',lastro);$('zLastIn').value='';renderMeuLastro()};
+$('zLastIn').onkeydown=e=>{if(e.key==='Enter')$('zLastAdd').click()};
+
+/* 6. blocos de hoje */
+const AVISOS=['vou treinar agora, depois te falo','vou pro culto, te falo na volta','tô num bloco de trabalho, respondo no almoço','vou sair, depois te chamo'];
+let avisoUlt=-1,blocoVibrou=null;
+let blocos=Object.assign({itens:[],ativo:null},load('blocos',{}));
+blocos.itens=blocos.itens.filter(b=>b.d>=addDays(dkey(),-21));
+function renderBlocos(){
+  const hoje=dkey(),ul=$('zBList');ul.innerHTML='';
+  blocos.itens.filter(b=>b.d===hoje).sort((a,b)=>(a.hora||'99').localeCompare(b.hora||'99')).forEach(b=>{
+    const tit=el('span',{},[el('b',{textContent:(b.hora?b.hora+' · ':'')+b.nome})]);
+    if(b.cumprido)tit.append(el('span',{className:'ok',textContent:' ✓ cumprido'}));
+    const bx=el('button',{textContent:'×',style:'flex:0 0 auto;min-width:44px'});bx.setAttribute('aria-label','Remover bloco '+b.nome);
+    bx.onclick=()=>{if(blocos.ativo&&blocos.ativo.id===b.id)blocos.ativo=null;blocos.itens=blocos.itens.filter(x=>x.id!==b.id);save('blocos',blocos);renderBlocos()};
+    const sel=el('select');sel.setAttribute('aria-label','Duração do bloco '+b.nome);
+    [30,60,90].forEach(m=>sel.append(el('option',{value:m,textContent:m+' min',selected:(b.dur||60)===m})));
+    sel.onchange=()=>{b.dur=+sel.value;save('blocos',blocos)};
+    const fora=el('button',{className:'main',textContent:'Fora',style:'font-size:16px;padding:10px'});
+    fora.onclick=()=>{
+      if(blocos.ativo){toast('Já tem um bloco em andamento');return}
+      b.dur=+sel.value;blocos.ativo={id:b.id,nome:b.nome,fim:Date.now()+b.dur*60000};save('blocos',blocos);renderBlocos();
+      $('zBAtivo').scrollIntoView({block:'nearest'});
+    };
+    const av=el('button',{textContent:'Avisar'});
+    av.onclick=()=>{let k;do{k=Math.floor(Math.random()*AVISOS.length)}while(k===avisoUlt);avisoUlt=k;copiar(AVISOS[k])};
+    ul.append(el('li',{className:'bloco'},[el('div',{className:'topo'},[tit,bx]),el('div',{className:'row'},[sel,fora,av])]));
+  });
+  if(!ul.children.length)ul.append(el('li',{className:'mut',textContent:'Nenhum bloco hoje ainda.'}));
+  mostrarBlocoAtivo();
+}
+function mostrarBlocoAtivo(){
+  const a=blocos.ativo;$('zBAtivo').classList.toggle('hide',!a);
+  if(!a)return;$('zBANome').textContent=a.nome;$('zBAT').textContent=relogioTxt(a.fim-Date.now());
+}
+$('zBAdd').onclick=()=>{
+  const n=$('zBNome').value.trim();if(!n){$('zBNome').focus();return}
+  blocos.itens.push({id:Date.now(),d:dkey(),nome:n,hora:$('zBHora').value||'',dur:60,cumprido:false});
+  save('blocos',blocos);$('zBNome').value='';$('zBHora').value='';renderBlocos();
+};
+$('zBNome').onkeydown=e=>{if(e.key==='Enter')$('zBAdd').click()};
+$('zBAParar').onclick=()=>{blocos.ativo=null;save('blocos',blocos);renderBlocos()};
+
+/* 7. revisão da semana */
+let revisao=load('revisao',{});let rT;
+function renderRevisao(){
+  const dow=new Date().getDay(),vis=dow===5||dow===6||dow===0;
+  $('zRev').classList.toggle('hide',!vis);if(!vis)return;
+  const s=segunda(),r=revisao[s]||{};
+  $('zRevB').textContent=blocos.itens.filter(b=>b.cumprido&&naSemana(b.d)).length;
+  $('zRevL').textContent=lastro.log.filter(l=>naSemana(l.d)).length;
+  $('zRevS').textContent=provas.filter(p=>naSemana(p.d)).length;
+  document.querySelectorAll('#zRev [data-r]').forEach(t=>{if(document.activeElement!==t)t.value=r[t.dataset.r]||''});
+}
+document.querySelectorAll('#zRev [data-r]').forEach(t=>t.addEventListener('input',()=>{
+  const s=segunda();revisao[s]=Object.assign(revisao[s]||{},{[t.dataset.r]:t.value});
+  clearTimeout(rT);rT=setTimeout(()=>{save('revisao',revisao);toast('Salvo')},500);
+}));
+
+/* render e relógio da aba */
+function renderLastro(nova=true){if(nova||!$('zFrase').textContent)novaFrase();renderTri();renderProvas();renderEscada();renderMeuLastro();renderBlocos();renderRevisao()}
+function tickLastro(){
+  const a=triAberta();
+  if(a){const r=a.fim-Date.now();if(r<=0&&r>-5000&&triVibrou!==a.t){triVibrou=a.t;vibrar()}if(lastroVisivel())renderTri()}
+  const b=blocos.ativo;
+  if(b){
+    const r=b.fim-Date.now();
+    if(r<=0){
+      const it=blocos.itens.find(x=>x.id===b.id);if(it)it.cumprido=true;
+      blocos.ativo=null;save('blocos',blocos);
+      if(r>-5000&&blocoVibrou!==b.id){blocoVibrou=b.id;vibrar();toast('Bloco cumprido')}
+      if(lastroVisivel()){renderBlocos();renderRevisao()}
+    }else if(lastroVisivel())mostrarBlocoAtivo();
+  }
+}
+setInterval(tickLastro,1000);tickLastro();
+
+function tudo(){modo();renderHumor();renderAcao();renderM();renderA();contadores();renderCiclo();renderLer();if(lastroVisivel())renderLastro(false)}
 tudo();
 setInterval(()=>{tema();modo();if(dkey()!==diaAtual){diaAtual=dkey();tudo()}else renderAcao()},60000);
 </script>
