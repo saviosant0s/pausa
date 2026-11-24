@@ -393,10 +393,34 @@ tema();
       <details><summary>Histórico</summary><ul id="hList"></ul></details>
     </div>
 
-    <div class="card">
+    <div class="card" id="nvCard">
       <h2>Seus dados</h2>
-      <p class="mut">Tudo fica só neste celular, sem conta e sem nuvem.</p>
-      <div class="row"><button id="exp">Exportar</button><button id="del">Apagar tudo</button></div>
+      <div id="nvOff">
+        <p class="mut">Os dados ficam só neste aparelho. A nuvem ainda não foi configurada.</p>
+      </div>
+      <div id="nvLogin" class="hide">
+        <p class="mut">Entre para salvar na nuvem e usar o mesmo Pausa no PC e no celular. Sem login, os dados ficam só neste aparelho.</p>
+        <label for="nvEmail">E-mail</label>
+        <input id="nvEmail" type="email" autocomplete="email" inputmode="email">
+        <label for="nvSenha">Senha (mínimo 6 caracteres)</label>
+        <input id="nvSenha" type="password" autocomplete="current-password" minlength="6">
+        <div class="row" style="margin-top:10px"><button class="main" id="nvEntrar" style="font-size:17px">Entrar</button><button id="nvCriar">Criar conta</button></div>
+        <p class="aviso hide" id="nvErro" role="alert"></p>
+      </div>
+      <div id="nvConectando" class="hide"><p class="mut">Conectando…</p></div>
+      <div id="nvEscolha" class="hide">
+        <p>Este aparelho já tem dados, e a nuvem também. Onde os dois tiverem a mesma parte, qual fica?</p>
+        <p class="mut">O que só existe de um lado é juntado.</p>
+        <button class="full" id="nvBackup">Baixar backup deste aparelho antes</button>
+        <button class="full" id="nvFicaNuvem">Fica o que está na nuvem</button>
+        <button class="full" id="nvFicaAqui">Fica o que está neste aparelho</button>
+      </div>
+      <div id="nvOn" class="hide">
+        <p>Salvando na nuvem como <b id="nvQuem"></b>.</p>
+        <p class="mut" id="nvStatus" aria-live="polite"></p>
+        <div class="row"><button id="nvAgora">Sincronizar agora</button><button id="nvSair">Sair</button></div>
+      </div>
+      <div class="row" style="margin-top:12px"><button id="exp">Exportar</button><button id="del">Apagar tudo</button></div>
     </div>
   </section>
 
@@ -588,7 +612,9 @@ tema();
 const $=id=>document.getElementById(id);
 const mem={};
 function load(k,d){try{const v=localStorage.getItem('pausa_'+k);return v?JSON.parse(v):d}catch(e){return k in mem?mem[k]:d}}
-function save(k,v){mem[k]=v;try{localStorage.setItem('pausa_'+k,JSON.stringify(v))}catch(e){}}
+function save(k,v){mem[k]=v;try{localStorage.setItem('pausa_'+k,JSON.stringify(v))}catch(e){}if(window.nuvemMarcar)window.nuvemMarcar(k)}
+/* Todas as chaves de dados do app: usadas no Exportar e na nuvem. */
+window.PAUSA_CHAVES=['cfg','alts','mandar','log','humor','acao','emo','ciclo','comb','amanha','leitura','duvidas','despejo','tricagem','provas','nivel','lastro','blocos','revisao'];
 function el(tag,props,kids){const e=document.createElement(tag);Object.assign(e,props||{});(kids||[]).forEach(k=>e.append(k));return e}
 let tt;function toast(s){const t=$('toast');t.textContent=s;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1400)}
 
@@ -931,13 +957,16 @@ function renderStats(){
 }
 
 $('exp').onclick=()=>{
-  const o={};['cfg','alts','mandar','log','humor','acao','emo','ciclo','comb','amanha','leitura','duvidas','despejo','tricagem','provas','nivel','lastro','blocos','revisao'].forEach(k=>o[k]=load(k,null));
+  const o={};window.PAUSA_CHAVES.forEach(k=>o[k]=load(k,null));
   const a=el('a',{href:URL.createObjectURL(new Blob([JSON.stringify(o,null,2)],{type:'application/json'})),download:'pausa-'+dkey()+'.json'});
   document.body.append(a);a.click();a.remove();
 };
-$('del').onclick=()=>{
-  if(!confirm('Apagar todos os dados do Pausa neste celular? Não dá pra desfazer.'))return;
-  try{Object.keys(localStorage).filter(k=>k.startsWith('pausa_')).forEach(k=>localStorage.removeItem(k))}catch(e){}
+$('del').onclick=async()=>{
+  const nv=window.nuvemConectada&&window.nuvemConectada();
+  if(!confirm(nv?'Apagar todos os dados do Pausa neste aparelho, na nuvem e nos outros aparelhos conectados? Não dá pra desfazer.':'Apagar todos os dados do Pausa neste celular? Não dá pra desfazer.'))return;
+  if(nv&&!(await window.nuvemApagar()))return;
+  /* "pausa__" guarda a sessão da nuvem: o login continua depois de apagar. */
+  try{Object.keys(localStorage).filter(k=>k.startsWith('pausa_')&&!k.startsWith('pausa__')).forEach(k=>localStorage.removeItem(k))}catch(e){}
   location.reload();
 };
 
@@ -1276,5 +1305,6 @@ function tudo(){modo();renderHumor();renderAcao();renderM();renderA();contadores
 tudo();
 setInterval(()=>{tema();modo();if(dkey()!==diaAtual){diaAtual=dkey();tudo()}else renderAcao()},60000);
 </script>
+<script src="nuvem.js"></script>
 </body>
 </html>
